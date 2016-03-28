@@ -21,10 +21,8 @@ class TrombiController extends Controller {
      * de l'année courante.
      */
     public function menuAction() {
-        $doctrine = $this->getDoctrine();
-        $em = $doctrine->getManager();
-        $groupeRespository = $em->getRepository('IutTrombiBundle:Groupe');
-        $semestreRepository = $em->getRepository('IutTrombiBundle:Semestre');
+        $groupeRespository = $this->getGroupeRepo();
+        $semestreRepository = $this->getSemestreRepo();
         $listeSemestre = $semestreRepository->findAll();
         $listeGroupe = $groupeRespository->findAll();
         return $this->render('IutTrombiBundle:Trombi:menu.html.twig', array(
@@ -50,11 +48,9 @@ class TrombiController extends Controller {
      * @Route("/display/{p_idGroupe}/{p_idSemestre}/{p_modif}", name="display")
      */
     public function displayAction($p_idGroupe, $p_idSemestre, $p_modif) {
-        $doctrine = $this->getDoctrine();
-        $em = $doctrine->getManager();
-        $semestreRepository = $em->getRepository('IutTrombiBundle:Semestre');
-        $groupeRepository = $em->getRepository('IutTrombiBundle:Groupe');
-        $etudiantRepository = $em->getRepository('IutTrombiBundle:Etudiant');
+        $semestreRepository = $this->getSemestreRepo();
+        $groupeRepository = $this->getGroupeRepo();
+        $etudiantRepository = $this->getEtudiantRepo();
         switch ($p_idGroupe) {
             case -1:
                 $listeEtudiant = $etudiantRepository->findAll();
@@ -96,14 +92,14 @@ class TrombiController extends Controller {
         if ($_FILES['liste_etudiants']['error'] > 0) {
             $erreur = "Erreur lors du transfert du fichier";
         }
-        $target_file = $this->get('kernel')->getRootDir(). '/../web/' . basename($_FILES['liste_etudiants']['name']);
+        $target_file = $this->get('kernel')->getRootDir() . '/../web/' . basename($_FILES['liste_etudiants']['name']);
         $tranfert = move_uploaded_file($_FILES['liste_etudiants']['tmp_name'], $target_file);
         if ($tranfert) {
             $fichier = fopen($target_file, "r+");
             $liste = array();
             $ligne = fgets($fichier);
-            $em = $this->getDoctrine()->getManager();
-            $groupeRepository = $em->getRepository('IutTrombiBundle:Groupe');
+            $em = $this->getEM();
+            $groupeRepository = $this->getGroupeRepo();
             $td1 = $groupeRepository->find(1);
             $tp1 = $groupeRepository->find(2);
             while ($ligne = fgets($fichier)) {
@@ -171,9 +167,9 @@ class TrombiController extends Controller {
             'groupe_tp' => $_POST['groupe_tp']
         );
 
-        $em = $this->getDoctrine()->getManager();
-        $etudiantRepository = $em->getRepository('IutTrombiBundle:Etudiant');
-        $groupeRepository = $em->getRepository('IutTrombiBundle:Groupe');
+        $em = $this->getEM();
+        $etudiantRepository = $this->getEtudiantRepo();
+        $groupeRepository = $this->getGroupeRepo();
         $new_td = $groupeRepository->find($form_etudiant['groupe_td']);
         $new_tp = $groupeRepository->find($form_etudiant['groupe_tp']);
         $etudiant = $etudiantRepository->find($form_etudiant['id']);
@@ -196,50 +192,13 @@ class TrombiController extends Controller {
 
         return $this->render('IutTrombiBundle:Trombi:index.html.twig');
     }
-    
-    /**
-     * @Route("/addStudent", name="addStudent")
-     */
-    public function addStudentAction() {
-
-        $form_etudiant = array(
-            'id' => $_POST['id'],
-            'nom' => $_POST['nom'],
-            'prenom' => $_POST['prenom'],
-            'groupe_td' => $_POST['groupe_td'],
-            'groupe_tp' => $_POST['groupe_tp']
-        );
-
-        $em = $this->getDoctrine()->getManager();
-        $etudiantRepository = $em->getRepository('IutTrombiBundle:Etudiant');
-        $groupeRepository = $em->getRepository('IutTrombiBundle:Groupe');
-        $new_td = $groupeRepository->find($form_etudiant['groupe_td']);
-        $new_tp = $groupeRepository->find($form_etudiant['groupe_tp']);
-        $etudiant = new \Iut\TrombiBundle\Entity\Etudiant();
-        $etudiant->setNom($form_etudiant['nom']);
-        $etudiant->setPrenom($form_etudiant['prenom']);
-        $etudiant->setNom($form_etudiant['nom']);
-        $etudiant->setUrlPhoto('img/photos/default.gif');
-        $etudiant->addIdGroupe($new_td);
-        $new_td->addIdEtudiant($etudiant);
-        $new_tp->addIdEtudiant($etudiant);
-        $em->persist($etudiant);
-        $em->persist($new_td);
-        $em->persist($new_tp);
-        $etudiant->addIdGroupe($new_tp);
-        $em->persist($etudiant);
-        $em->flush();
-
-        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
-    }
 
     /**
      * @Route("/supp/{idEtudiant}", name="supp")
      */
     public function suppressionEtudiantAction($idEtudiant) {
-        $doctrine = $this->getDoctrine();
-        $em = $doctrine->getManager();
-        $etudiantRepository = $em->getRepository('IutTrombiBundle:Etudiant');
+        $em = $this->getEM();
+        $etudiantRepository = $this->getEtudiantRepo();
         $etudiant = $etudiantRepository->find($idEtudiant);
         $em->remove($etudiant);
         $em->flush();
@@ -250,11 +209,10 @@ class TrombiController extends Controller {
      * @Route("/nextSemestre",name="nextSemestre")
      */
     public function changerSemestreAction() {
-        $doctrine = $this->getDoctrine();
-        $em = $doctrine->getManager();
-        $groupeRepository = $em->getRepository('IutTrombiBundle:Groupe');
-        $etudiantRepository = $em->getRepository('IutTrombiBundle:Etudiant');
-        $semestreRepository = $em->getRepository('IutTrombiBundle:Semestre');
+        $em = $this->getEM();
+        $groupeRepository = $this->getGroupeRepo();
+        $etudiantRepository = $this->getEtudiantRepo();
+        $semestreRepository = $this->getSemestreRepo();
         $list_groupe = $groupeRepository->findAll();
         $list_etudiant = $etudiantRepository->findAll();
         $list_semestre = $semestreRepository->findAll();
@@ -290,6 +248,86 @@ class TrombiController extends Controller {
             }
         }
         return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+    }
+
+    /**
+     * @Route("/exporterPDF/{p_idGroupe}/{p_idSemestre}",name="exporterPDF")
+     */
+    public function exporterPDFAction($p_idGroupe, $p_idSemestre) {
+        $etudiantRepository = $this->getEtudiantRepo();
+        $groupeRepository = $this->getGroupeRepo();
+        $semestreRepository = $this->getSemestreRepo();
+        $etudiants = $etudiantRepository->findAll();
+
+        $pdf = new \FPDF();
+        $pdf->AddPage();
+        $pdf->SetFont('Arial', 'B', 16);
+        //En-tête
+        $pdf->Cell(80, 7, 'Nom', 1);
+        $pdf->Cell(52, 7, 'Prenom', 1);
+        $pdf->Cell(40, 7, 'Signature', 1);
+        $pdf->Ln();
+
+        if ($p_idGroupe == -1) {
+            $semestre = $semestreRepository->find($p_idSemestre);
+            $groupes = $groupeRepository->findBy(array(
+                'idSemestre' => $semestre
+            ));
+            $liste_etudiant = $this->trieEtudiantSemestre($groupes, $etudiants);
+            // Données
+            foreach ($liste_etudiant as $etudiant) {
+                $pdf->Cell(80, 6, $etudiant->getNom(), 1);
+                $pdf->Cell(52, 6, $etudiant->getPrenom(), 1);
+                $pdf->Cell(40, 6, ' ', 1);
+                $pdf->Ln();
+            }
+            $pdf->Output('D', 'feuille_emargement_' . $semestre->getLibelle() . '.pdf', true);
+        } else {
+            $groupe = $groupeRepository->find($p_idGroupe);
+            $liste_etudiant = $this->trieEtudiantGroupe($groupe, $etudiants);
+            foreach ($liste_etudiant as $etudiant) {
+                $pdf->Cell(80, 6, $etudiant->getNom(), 1);
+                $pdf->Cell(52, 6, $etudiant->getPrenom(), 1);
+                $pdf->Cell(40, 6, ' ', 1);
+                $pdf->Ln();
+            }
+            $pdf->Output('D', 'feuille_emargement_' . $groupe->getLibelle() . '.pdf', true);
+        }
+
+
+        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+    }
+
+    /**
+     * Methode pour récuperer l'entity manager de doctrine
+     * @return type
+     */
+    public function getEM() {
+        return $this->getDoctrine()->getManager();
+    }
+
+    /**
+     * Methode pour récuperer le repository Etudiant
+     * @return type
+     */
+    public function getEtudiantRepo() {
+        return $this->getEM()->getRepository('IutTrombiBundle:Etudiant');
+    }
+
+    /**
+     * Methode pour récuperer le repository Groupe
+     * @return type
+     */
+    public function getGroupeRepo() {
+        return $this->getEM()->getRepository('IutTrombiBundle:Groupe');
+    }
+
+    /**
+     * Methode pour récuperer le repository Semestre
+     * @return type
+     */
+    public function getSemestreRepo() {
+        return $this->getEM()->getRepository('IutTrombiBundle:Semestre');
     }
 
     /**
@@ -338,5 +376,3 @@ class TrombiController extends Controller {
     }
 
 }
-
-

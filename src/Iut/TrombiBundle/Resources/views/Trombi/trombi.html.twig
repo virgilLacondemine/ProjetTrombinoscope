@@ -36,7 +36,7 @@
         <ul class="dropdown-menu">
             <li><span class="input-group-addon">Feuille d'émargement</span></li>
             <li><div class="btn-group btn-group-justified">
-                    <a class="btn btn-danger" href="#">PDF</a>
+                    <a class="btn btn-danger" href="{{ path('exporterPDF',{'p_idGroupe': p_idGroupe, 'p_idSemestre': p_idSemestre}) }}">PDF</a>
                     <a class="btn btn-success" href="#">Excel</a>
                 </div></li>
             <li class="divider"></li>
