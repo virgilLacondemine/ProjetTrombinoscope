@@ -168,6 +168,42 @@ class TrombiController extends Controller {
 
         return $this->render('IutTrombiBundle:Trombi:index.html.twig');
     }
+    
+    /**
+     * @Route("/addStudent", name="addStudent")
+     */
+    public function addStudentAction() {
+
+        $form_etudiant = array(
+            'id' => $_POST['id'],
+            'nom' => $_POST['nom'],
+            'prenom' => $_POST['prenom'],
+            'groupe_td' => $_POST['groupe_td'],
+            'groupe_tp' => $_POST['groupe_tp']
+        );
+
+        $em = $this->getDoctrine()->getManager();
+        $etudiantRepository = $em->getRepository('IutTrombiBundle:Etudiant');
+        $groupeRepository = $em->getRepository('IutTrombiBundle:Groupe');
+        $new_td = $groupeRepository->find($form_etudiant['groupe_td']);
+        $new_tp = $groupeRepository->find($form_etudiant['groupe_tp']);
+        $etudiant = new \Iut\TrombiBundle\Entity\Etudiant();
+        $etudiant->setNom($form_etudiant['nom']);
+        $etudiant->setPrenom($form_etudiant['prenom']);
+        $etudiant->setNom($form_etudiant['nom']);
+        $etudiant->setUrlPhoto('img/photos/default.gif');
+        $etudiant->addIdGroupe($new_td);
+        $new_td->addIdEtudiant($etudiant);
+        $new_tp->addIdEtudiant($etudiant);
+        $em->persist($etudiant);
+        $em->persist($new_td);
+        $em->persist($new_tp);
+        $etudiant->addIdGroupe($new_tp);
+        $em->persist($etudiant);
+        $em->flush();
+
+        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+    }
 
     /**
      * @Route("/supp/{idEtudiant}", name="supp")
@@ -275,4 +311,4 @@ class TrombiController extends Controller {
 
 }
 
-//AJOUT
+
