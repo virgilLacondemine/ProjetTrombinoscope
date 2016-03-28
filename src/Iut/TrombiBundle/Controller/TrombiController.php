@@ -333,6 +333,33 @@ class TrombiController extends Controller {
 
         return $this->render('IutTrombiBundle:Trombi:index.html.twig');
     }
+    
+    /**
+     * @Route("/exportExcelListe/{p_idGroupe}/{p_idSemestre}",name="exportExcelListe")
+     * @param type $p_groupe
+     * @param type $p_listeEtudiant
+     * 
+     */
+    public function exportExcelListe($p_idGroupe, $p_idSemestre) {
+        $groupeRepository = $this->getGroupeRepo();
+        $semestreRepository = $this->getSemestreRepo();
+        $etudiantsRepository = $this->getEtudiantRepo();
+        $etudiants = $etudiantsRepository->findAll();
+        header("Content-type:application/vnd.ms-excel");
+        if ($p_idGroupe == -1) {
+            $semestre = $semestreRepository->find($p_idSemestre);
+            $groupes = $groupeRepository->findBy(array(
+                'idSemestre' => $semestre
+            ));
+            $this->trieEtudiantSemestre($groupes, $etudiants);
+        } else {
+            $groupe = $groupeRepository->find($p_idGroupe);
+            $this->trieEtudiantGroupe($groupe, $etudiants);
+        }
+        print '<table brder=1>'
+        . '<TR><TD>Nom</TD>'
+                . '<TD>Prenom</TD><TD>TD</TD><TD>TP</TD></TR><TR>';
+    }
 
     /**
      * Methode pour récuperer l'entity manager de doctrine
