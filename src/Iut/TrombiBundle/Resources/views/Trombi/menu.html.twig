@@ -98,7 +98,7 @@
                         <label for="groupe_td" class="control-label">Groupe TD :</label>
                         <select class="form-control" id="groupe_td" name="groupe_td">
                             {% for semestre in les_semestres %}
-                                <option value='#'> {{semestre.libelle}} : </option>
+                                <option value='#' disabled> {{semestre.libelle}} : </option>
                                 {% for groupe in les_groupes %}
                                     {% if groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
                                         <option value="{{ groupe.id }}">{{ groupe.libelle }}</option>
@@ -111,7 +111,7 @@
                         <label for="groupe_tp" class="control-label">Groupe TP :</label>
                         <select class="form-control" id="groupe-tp" name="groupe_tp">
                             {% for semestre in les_semestres %}
-                                <option value='#'> {{semestre.libelle}} : </option>
+                                <option value='#' disabled> {{semestre.libelle}} : </option>
                                 {% for groupe in les_groupes%}
                                     {% if groupe.idPere != null  and groupe.idSemestre.id == semestre.id %}
                                         <option value="{{ groupe.id }}">{{ groupe.libelle }}</option>

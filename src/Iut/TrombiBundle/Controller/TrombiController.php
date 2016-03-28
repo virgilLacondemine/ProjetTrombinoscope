@@ -96,7 +96,7 @@ class TrombiController extends Controller {
         if ($_FILES['liste_etudiants']['error'] > 0) {
             $erreur = "Erreur lors du transfert du fichier";
         }
-        $target_file = "C://wamp/www/ProjetTrombinoscope/web/" . basename($_FILES['liste_etudiants']['name']);
+        $target_file = $this->get('kernel')->getRootDir(). '/../web/' . basename($_FILES['liste_etudiants']['name']);
         $tranfert = move_uploaded_file($_FILES['liste_etudiants']['tmp_name'], $target_file);
         if ($tranfert) {
             $fichier = fopen($target_file, "r+");
