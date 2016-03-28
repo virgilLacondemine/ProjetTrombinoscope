@@ -129,6 +129,34 @@ class TrombiController extends Controller {
         }
         return $this->render('IutTrombiBundle:Trombi:index.html.twig');
     }
+    
+       /**
+     * @Route("/addGrp", name="addGrp")
+     */
+    public function addGrpAction() {
+
+        $form_grp = array(
+            'libelle' => $_POST['libelle'],
+            'idSemestre' => $_POST['idSemestre'],
+            'idPere' => $_POST['idPere'],
+        );
+
+        $em = $this->getDoctrine()->getManager();
+        $semestreRepository = $em->getRepository('IutTrombiBundle:Semestre');
+        $semestre = $semestreRepository->find($form_grp['idSemestre']);
+
+        $groupeRepository = $em->getRepository('IutTrombiBundle:Groupe');
+        $groupePere = $groupeRepository->find($form_grp['idPere']);
+
+        $groupe = new \Iut\TrombiBundle\Entity\Groupe();
+        $groupe->setLibelle($form_grp['libelle']);
+        $groupe->setIdSemestre($semestre);
+        $groupe->setIdPere($groupePere);
+        $em->persist($groupe);
+        $em->flush();
+
+        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+    }
 
     /**
      * @Route("/modify", name="modify")
