@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="Iut\TrombiBundle\Entity\Groupe" table="groupe">
+    <indexes>
+      <index name="id_semestre" columns="id_semestre"/>
+      <index name="id_pere" columns="id_pere"/>
+    </indexes>
+    <id name="id" type="integer" column="id">
+      <generator strategy="IDENTITY"/>
+    </id>
+    <field name="libelle" type="string" column="libelle" length="10" nullable="false"/>
+    <many-to-one field="idPere" target-entity="Groupe">
+      <join-columns>
+        <join-column name="id_pere" referenced-column-name="id"/>
+      </join-columns>
+    </many-to-one>
+    <many-to-one field="idSemestre" target-entity="Semestre">
+      <join-columns>
+        <join-column name="id_semestre" referenced-column-name="id"/>
+      </join-columns>
+    </many-to-one>
+    <many-to-many field="idEtudiant" target-entity="Etudiant" mapped-by="idGroupe"/>
+  </entity>
+</doctrine-mapping>

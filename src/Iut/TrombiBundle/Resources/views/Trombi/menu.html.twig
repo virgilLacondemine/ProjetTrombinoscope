@@ -1,0 +1,158 @@
+<div class="panel-group" id="1a" role="tablist" aria-multiselectable="true">
+    {% for semestre in les_semestres %} 
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="heading_s{{ semestre.id }}">
+                <h4 class="panel-title">
+                    <a role="button" data-toggle="collapse" data-parent="#1a" href="#collapse_s{{ semestre.id }}" aria-expanded="true" aria-controls="collapse_s{{ semestre.id }}">S{{ semestre.id }}</a>
+                    <a href="{{ path('display',{'p_idGroupe':-1, 'p_idSemestre':semestre.id, 'p_modif':0}) }}"><button class="btn" style="margin-left: 10px;">Voir</button></a>
+                </h4>
+            </div>
+            <div id="collapse_s{{ semestre.id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_s{{ semestre.id }}">
+                <div class="panel-body">
+                    <div class="panel-group" id="s{{ semestre.id }}" role="tablist" aria-multiselectable="true">
+                        {% for td in les_groupes %}
+                            {% if td.idSemestre.id == semestre.id and td.idPere == null %}
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="heading_s{{ semestre.id }}_{{td.libelle|lower}}">
+                                        <h4 class="panel-title">
+                                            <a role="button" data-toggle="collapse" data-parent="#s{{ semestre.id }}" href="#collapse_s{{ semestre.id }}_{{td.libelle|lower}}" aria-expanded="true" aria-controls="collapse_s{{ semestre.id }}_{{td.libelle|lower}}">{{td.libelle|upper}}</a>
+                                            <a href="{{ path('display',{'p_idGroupe':td.id, 'p_idSemestre':semestre.id, 'p_modif':0}) }}"><button class="btn" style="margin-left: 10px;">Voir</button></a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapse_s{{ semestre.id }}_{{td.libelle|lower}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_s{{ semestre.id }}_{{td.libelle|lower}}">
+                                        <div class="panel-body">
+                                            <ul class="nav nav-pills nav-stacked">
+                                                {% for tp in les_groupes %}
+                                                    {% if tp.idPere != null and tp.idPere.id == td.id %}
+                                                        <li role="1a_info_s1_{{td.libelle|lower}}"><a href="{{ path('display',{'p_idGroupe':tp.id, 'p_idSemestre':semestre.id, 'p_modif':0}) }}" >{{ tp.libelle|upper }}</a></li>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                            </ul>
+
+                                            <!-- Fin menu déroulant 1A INFO/S1/TD1 -->
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            {% endif %}
+                        {% endfor %}
+                        <!-- Fin menu déroulant 1A INFO/S2 -->
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="heading_outils">
+            <h4 class="panel-title">
+                <a role="button" data-toggle="collapse" data-parent="#1a" href="#collapse_outils" aria-expanded="true" aria-controls="collapse_outils">Outils</a>
+            </h4>
+        </div>
+        <div id="collapse_outils" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_outils}">
+            <div class="panel-body">
+                <ul class="nav nav-pills nav-stacked">
+                    <li role="ajoutEtudiant"><a data-toggle="modal" data-target="#addModal" >Ajouter un étudiant</a></li>
+                        {#<li role="ajoutEtudiant"><a href="{{ path('switchSem')}}" >Changer de semestre</a></li> #}               
+                    <li role="ajoutEtudiant"><a data-toggle="modal" data-target="#addAllModal">Ajouter des etudiants</a></li>
+                    <li role="PasserSemestre"><a href="{{ path('nextSemestre')}}">Passer semestre suivant</a></li>
+
+                </ul>
+
+                <!-- Fin menu déroulant outils -->
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Fin menu déroulant 1A INFO/S2 -->
+</div>
+
+
+
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="addModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="addModalLabel">ajout d'un étudiant</h4>
+            </div>
+            <div class="modal-body">
+                <form action="{{ path('modify') }}" method="POST">
+                    <div class="form-group">
+                        <input type="hidden" name="id" >
+                    </div>
+                    <div class="form-group">
+                        <label for="nom" class="control-label">Nom :</label>
+                        <input type="text" class="form-control" id="nom" name="nom" >
+                    </div>
+                    <div class="form-group">
+                        <label for="prenom" class="control-label">Prenom :</label>
+                        <input type="text" class="form-control" id="prenom" name="prenom">
+                    </div>
+                    <div class="form-group">
+                        <label for="groupe_td" class="control-label">Groupe TD :</label>
+                        <select class="form-control" id="groupe_td" name="groupe_td">
+                            {% for semestre in les_semestres %}
+                                <option value='#'> {{semestre.libelle}} : </option>
+                                {% for groupe in les_groupes %}
+                                    {% if groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
+                                        <option value="{{ groupe.id }}">{{ groupe.libelle }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="groupe_tp" class="control-label">Groupe TP :</label>
+                        <select class="form-control" id="groupe-tp" name="groupe_tp">
+                            {% for semestre in les_semestres %}
+                                <option value='#'> {{semestre.libelle}} : </option>
+                                {% for groupe in les_groupes%}
+                                    {% if groupe.idPere != null  and groupe.idSemestre.id == semestre.id %}
+                                        <option value="{{ groupe.id }}">{{ groupe.libelle }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" class="btn btn-primary">
+                    </div>
+                </form>                                            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade" id="addAllModal" tabindex="-1" role="dialog" aria-labelledby="addAllModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="addAllModalLabel">ajout d'étudiants</h4>
+            </div>
+            <div class="modal-body">
+                <form action="{{ path('import') }}" method="POST" enctype="multipart/form-data">
+                    <input type="file" name="liste_etudiants" id="liste_etudiants" />
+                    <div class="form-group">
+                        <input type="submit" class="btn btn-primary">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+
+            </div>
+        </div>
+    </div>
+</div>

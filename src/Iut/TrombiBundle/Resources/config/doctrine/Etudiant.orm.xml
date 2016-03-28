@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="Iut\TrombiBundle\Entity\Etudiant" table="etudiant">
+    <id name="id" type="integer" column="id">
+      <generator strategy="IDENTITY"/>
+    </id>
+    <field name="nom" type="string" column="nom" length="25" nullable="false"/>
+    <field name="prenom" type="string" column="prenom" length="20" nullable="false"/>
+    <field name="urlPhoto" type="string" column="url_photo" length="255" nullable="false"/>
+    <many-to-many field="idGroupe" target-entity="Groupe" inversed-by="idEtudiant">
+      <join-table name="dans">
+        <join-columns>
+          <join-column name="id_etudiant" referenced-column-name="id"/>
+        </join-columns>
+        <inverse-join-columns>
+          <join-column name="id_groupe" referenced-column-name="id"/>
+        </inverse-join-columns>
+      </join-table>
+    </many-to-many>
+  </entity>
+</doctrine-mapping>

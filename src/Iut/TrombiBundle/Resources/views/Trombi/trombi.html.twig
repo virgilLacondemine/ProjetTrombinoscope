@@ -1,0 +1,295 @@
+{% extends "IutTrombiBundle::layout.html.twig" %}
+
+{% block title %}
+    {{ parent() }} - Groupe
+    {% if semestre is defined %} 
+        {{semestre.libelle}}
+    {% else %}
+        {{groupe.libelle}}
+    {%endif%}
+{% endblock %}
+
+{% block warning_modif %}
+    {% if p_modif == 1 %}
+        <div class="row">
+            <div class="alert alert-warning" role="alert" style="text-align: center;">
+                <p><strong>Attention !</strong> Mode edition actif</p>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block group_title %}
+    {{ parent() }} 
+    {% if semestre is defined %} 
+        {{semestre.libelle}}
+    {% else %}
+        {{groupe.libelle}}
+    {%endif%}
+{% endblock %}
+
+{% block action_button %}
+    <div class="btn-group">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Export <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><span class="input-group-addon">Feuille d'émargement</span></li>
+            <li><div class="btn-group btn-group-justified">
+                    <a class="btn btn-danger" href="#">PDF</a>
+                    <a class="btn btn-success" href="#">Excel</a>
+                </div></li>
+            <li class="divider"></li>
+            <li><span class="input-group-addon">Trombinoscope</span> </li>
+            <li><div class="btn-group btn-group-justified">
+                    <a class="btn btn-danger" href="#">PDF</a>
+                    <a class="btn btn-success" href="#">Excel</a>
+                </div>
+            </li>
+        </ul>
+    </div>
+    {% if p_modif == 0 %}
+        <a href="{{ path('display',{'p_idGroupe': p_idGroupe, 'p_idSemestre': p_idSemestre , 'p_modif': 1}) }}">
+            <button type="button" class="btn btn-default">
+                Modifier
+            </button>
+        </a>
+    {% else %}
+        <a href="{{ path('display',{'p_idGroupe': p_idGroupe, 'p_idSemestre': p_idSemestre , 'p_modif': 0}) }}">
+            <button type="button" class="btn btn-default">
+                Fin Modification
+            </button>
+        </a>  
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+
+    {# Cas d'une demande d'affichage d'un Semestre #}
+
+    {% if semestre is defined and  etudiants is defined %} 
+        {% if etudiants != null %}
+            {%for etudiant in etudiants|sort %}
+                <div class="col-md-3">
+                    <div class="thumbnail">
+                        <img src="{{ asset(etudiant.urlPhoto) }}" alt="{{ etudiant.nom }} {{ etudiant.prenom }}" class="img-responsive"/>
+                        <div class="caption">
+                            <h4>{{ etudiant.nom }}</h4>
+                            <h6>{{ etudiant.prenom }}</h6>
+                            {% for groupe_etudiant in etudiant.idGroupe %}
+                                {% for groupe in groupes %}
+                                    {% if groupe_etudiant.id == groupe.id %}
+                                        <p class="text-muted">{{ groupe.libelle }}</p>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                            {% if p_modif == 1 %}
+                                <button type="button" class="btn btn-default" aria-label="Left Align" data-toggle="modal" data-target="#{{ etudiant.id }}ModModal">
+                                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                </button>
+
+                                <button type="button" class="btn btn-default" aria-label="Left Align" data-toggle="modal" data-target="#{{ etudiant.id }}SupModal">
+                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                </button>
+                                    
+                                <div class="modal fade" id="{{ etudiant.id }}SupModal" tabindex="-1" role="dialog" aria-labelledby="{{ etudiant.id }}SupModalLabel">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                <h4 class="modal-title" id="{{ etudiant.id }}SupModalLabel">Modification de {{ etudiant.nom }} {{ etudiant.prenom }}</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p> Voulez vous vraiment supprimer {{ etudiant.nom }} {{ etudiant.prenom }} ? </p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <a href="{{ path('supp', {'idEtudiant':etudiant.id}) }}"><button type="button" class="btn btn-default" >Valider</button></a>
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                                
+                                <div class="modal fade" id="{{ etudiant.id }}ModModal" tabindex="-1" role="dialog" aria-labelledby="{{ etudiant.id }}ModModalLabel">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                <h4 class="modal-title" id="{{ etudiant.id }}ModModalLabel">Modification de {{ etudiant.nom }} {{ etudiant.prenom }}</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form action="{{ path('modify') }}" method="POST">
+                                                    <div class="form-group">
+                                                        <input type="hidden" name="id" value="{{ etudiant.id }}">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="nom" class="control-label">Nom :</label>
+                                                        <input type="text" class="form-control" id="nom" name="nom" value="{{ etudiant.nom }}">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="prenom" class="control-label">Prenom :</label>
+                                                        <input type="text" class="form-control" id="prenom" name="prenom" value="{{ etudiant.prenom }}">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="groupe_td" class="control-label">Groupe TD :</label>
+                                                        <select class="form-control" id="groupe_td" name="groupe_td">
+                                                            {% for groupe in groupes %}
+                                                                {% if groupe.idPere == null %}
+                                                                    {% if groupe in etudiant.idGroupe and groupe.idSemestre == semestre%}
+                                                                        <option value="{{ groupe.id }}" selected>{{ groupe.libelle }}</option>
+                                                                    {% else %}
+                                                                        <option value="{{ groupe.id }}">{{ groupe.libelle }}</option>
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="groupe_tp" class="control-label">Groupe TP :</label>
+                                                        <select class="form-control" id="groupe-tp" name="groupe_tp">
+                                                            {% for groupe in groupes%}
+                                                                {% if groupe.idPere != null%}
+                                                                    {% if groupe in etudiant.idGroupe and groupe.idSemestre == semestre%}
+                                                                        <option value="{{ groupe.id }}" selected>{{ groupe.libelle }}</option>
+                                                                    {% else %}
+                                                                        <option value="{{ groupe.id }}">{{ groupe.libelle }}</option>
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="submit" class="btn btn-primary">
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                
+                            {% endif %}
+                        </div>
+                    </div>  
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% else %}
+        {%if etudiants != null %}
+            {%for etudiant in etudiants|sort %}
+                <div class="col-md-3">
+                    <div class="thumbnail">
+                        <img src="{{ asset(etudiant.urlPhoto) }}" alt="{{ etudiant.nom }} {{ etudiant.prenom }}" class="img-responsive"/>
+                        <div class="caption">
+                            <h4>{{ etudiant.nom }} {{ etudiant.prenom }}</h4>
+                            {% for td_tp in groupes %}
+                                {% for groupe_etudiant in etudiant.idGroupe %}
+                                    {% if groupe_etudiant.id == td_tp.id %}
+                                        <p class="text-muted">{{ td_tp.libelle }}</p>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                            {% if p_modif == 1 %}
+                                <button type="button" class="btn btn-default" aria-label="Left Align" data-toggle="modal" data-target="#{{ etudiant.id }}ModModal">
+                                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                </button>
+
+                                <button type="button" class="btn btn-default" aria-label="Left Align" data-toggle="modal" data-target="#{{ etudiant.id }}SupModal">
+                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                </button>
+                                    
+                                <div class="modal fade" id="{{ etudiant.id }}SupModal" tabindex="-1" role="dialog" aria-labelledby="{{ etudiant.id }}SupModalLabel">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                <h4 class="modal-title" id="{{ etudiant.id }}SupModalLabel">Modification de {{ etudiant.nom }} {{ etudiant.prenom }}</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p> Voulez vous vraiment supprimer {{ etudiant.nom }} {{ etudiant.prenom }} ? </p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <a href="{{ path('supp', {'idEtudiant':etudiant.id}) }}"><button type="button" class="btn btn-default" >Valider</button></a>
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal fade" id="{{ etudiant.id }}ModModal" tabindex="-1" role="dialog" aria-labelledby="{{ etudiant.id }}ModModalLabel">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                <h4 class="modal-title" id="{{ etudiant.id }}ModModalLabel">Modification de {{ etudiant.nom }} {{ etudiant.prenom }}</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form action="{{ path('modify', {'p_idGroupe':p_idGroupe, 'p_idSemestre':p_idSemestre, 'p_modif':p_modif}) }}" method="POST">
+
+                                                    <input type="hidden" name="id" value="{{ etudiant.id }}">
+                                                    <div class="form-group">
+                                                        <label for="nom" class="control-label">Nom :</label>
+                                                        <input type="text" class="form-control" id="nom" name="nom" value="{{ etudiant.nom }}">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="prenom" class="control-label">Prenom :</label>
+                                                        <input type="text" class="form-control" id="prenom" name="prenom" value="{{ etudiant.prenom }}">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="groupe_td" class="control-label">Groupe TD :</label>
+                                                        <select class="form-control" id="groupe_td" name="groupe_td">
+                                                            {% for td in groupes %}
+                                                                {% if td.idPere == null %}
+                                                                    {% for groupe_td in etudiant.idGroupe %}
+                                                                        {% if groupe_td.idPere != null%} 
+                                                                        {% elseif groupe_td.id == td.id %}
+                                                                            <option value="{{ td.id }}" selected>{{ td.libelle }}</option>
+                                                                        {% else %}
+                                                                            <option value="{{ td.id }}">{{ td.libelle }}</option>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="groupe_tp" class="control-label">Groupe TP :</label>
+                                                        <select class="form-control" id="groupe-tp" name="groupe_tp">
+                                                            {% for tp in groupes %}
+                                                                {% if tp.idPere != null %}
+                                                                    {% for groupe_tp in etudiant.idGroupe %}
+                                                                        {% if groupe_tp.idPere == null%} 
+                                                                        {% elseif groupe_tp.id == tp.id %}
+                                                                            <option value="{{ tp.id }}" selected>{{ tp.libelle }}</option>
+                                                                        {% else %}
+                                                                            <option value="{{ tp.id }}">{{ tp.libelle }}</option>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <input type="submit" class="btn btn-primary">
+                                                    </div>
+                                                </form>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>  
+                </div>
+            {% endfor %}
+        {% endif %}
+    {%endif%}
+{% endblock %}
