@@ -4,6 +4,7 @@
     <id name="id" type="integer" column="id">
       <generator strategy="IDENTITY"/>
     </id>
+    <field name="noetudiant" type="integer" column="noEtudiant" nullable="false"/>
     <field name="nom" type="string" column="nom" length="25" nullable="false"/>
     <field name="prenom" type="string" column="prenom" length="20" nullable="false"/>
     <field name="urlPhoto" type="string" column="url_photo" length="255" nullable="false"/>

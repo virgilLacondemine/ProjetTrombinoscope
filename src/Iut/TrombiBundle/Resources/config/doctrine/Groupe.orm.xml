@@ -9,14 +9,14 @@
       <generator strategy="IDENTITY"/>
     </id>
     <field name="libelle" type="string" column="libelle" length="10" nullable="false"/>
-    <many-to-one field="idPere" target-entity="Groupe">
-      <join-columns>
-        <join-column name="id_pere" referenced-column-name="id"/>
-      </join-columns>
-    </many-to-one>
     <many-to-one field="idSemestre" target-entity="Semestre">
       <join-columns>
         <join-column name="id_semestre" referenced-column-name="id"/>
+      </join-columns>
+    </many-to-one>
+    <many-to-one field="idPere" target-entity="Groupe">
+      <join-columns>
+        <join-column name="id_pere" referenced-column-name="id"/>
       </join-columns>
     </many-to-one>
     <many-to-many field="idEtudiant" target-entity="Etudiant" mapped-by="idGroupe"/>
