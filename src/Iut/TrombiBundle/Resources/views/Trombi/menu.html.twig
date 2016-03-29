@@ -59,6 +59,7 @@
                         {#<li role="ajoutEtudiant"><a href="{{ path('switchSem')}}" >Changer de semestre</a></li> #}               
                     <li role="ajoutEtudiant"><a data-toggle="modal" data-target="#addAllModal">Ajouter des etudiants</a></li>
                     <li role="PasserSemestre"><a href="{{ path('nextSemestre')}}">Passer semestre suivant</a></li>
+                    <li role="modeEditionGroupe"><a href="{{ path('displayGroupe') }}">Editer groupe</a></li>
 
                 </ul>
 
@@ -79,7 +80,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="addModalLabel">ajout d'un étudiant</h4>
+                <h4 class="modal-title" id="addModalLabel">Ajout d'un étudiant</h4>
             </div>
             <div class="modal-body">
                 <form action="{{ path('addStudent') }}" method="POST">
@@ -139,7 +140,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="addAllModalLabel">ajout d'étudiants</h4>
+                <h4 class="modal-title" id="addAllModalLabel">Ajout d'étudiants</h4>
             </div>
             <div class="modal-body">
                 <form action="{{ path('import') }}" method="POST" enctype="multipart/form-data">
@@ -174,7 +175,7 @@
                         <input type="text" class="form-control" id="libelle" name="libelle" >
                     </div>
                     <div class="form-group">
-                        <label for="idSemestre" class="control-label">semestre correspondant:</label>
+                        <label for="idSemestre" class="control-label">Semestre correspondant:</label>
                         <select class="form-control" id="idPere" name="idSemestre">
                             {% for semestre in les_semestres %}
                                 <option value='{{semestre.id}}'> {{semestre.libelle}} </option>
@@ -182,9 +183,9 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="idPere" class="control-label">Groupe TD père (laisser vide si groupe TD):</label>
+                        <label for="idPere" class="control-label">Groupe TD père (laisser vide pour ajouter un TD):</label>
                         <select class="form-control" id="idPere" name="idPere">
-                            <option value=''> pas de père </option>
+                            <option value=''> Pas de père </option>
                             {% for semestre in les_semestres %}
                                 <option value='#' disabled> {{semestre.libelle}} : </option>
                                 {% for groupe in les_groupes %}

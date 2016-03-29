@@ -84,6 +84,24 @@ class TrombiController extends Controller {
         }
     }
 
+    
+        /**
+     * 
+     * @Route("/displayGroupe", name="displayGroupe")
+     */
+        public function displayGroupeAction() {
+        $doctrine = $this->getDoctrine();
+        $em = $doctrine->getManager();
+        $semestreRepository = $em->getRepository('IutTrombiBundle:Semestre');
+        $groupeRepository = $em->getRepository('IutTrombiBundle:Groupe');
+        $les_semestres = $semestreRepository->findAll();
+        $les_groupes = $groupeRepository->findAll();
+        $array = array('groupes' => $les_groupes,
+                    'semestres' => $les_semestres);
+
+        return $this->render('IutTrombiBundle:Trombi:editionGroupe.html.twig', $array);
+    }
+    
     /**
      * 
      * @Route("/import", name="import")
@@ -192,6 +210,36 @@ class TrombiController extends Controller {
 
         return $this->render('IutTrombiBundle:Trombi:index.html.twig');
     }
+    
+     /**
+     * @Route("/modifGrp", name="modifGrp")
+     */
+    public function modifGrpAction() {
+
+        $form_groupe = array(
+            'id' => $_POST['id'],
+            'libelle' => $_POST['libelle'],
+            'idSemestre' => $_POST['idSemestre'],
+            'idPere' => $_POST['idPere']
+        );
+
+        $em = $this->getDoctrine()->getManager();
+        $groupeRepository = $em->getRepository('IutTrombiBundle:Groupe');
+        $semestreRepository = $em->getRepository('IutTrombiBundle:Semestre');
+        $new_semestre = $semestreRepository->find($form_groupe['idSemestre']);
+        $new_pere = $groupeRepository->find($form_groupe['idPere']);
+        $groupe = $groupeRepository->find($form_groupe['id']);
+       
+        $groupe->setLibelle($form_groupe['libelle']);
+        $groupe->setIdSemestre($new_semestre);
+        $groupe->setIdPere($new_pere);
+        $em->persist($new_semestre);
+        $em->persist($new_pere);
+        $em->persist($groupe);
+        $em->flush();
+
+        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+    }
 
     /**
      * @Route("/supp/{idEtudiant}", name="supp")
@@ -201,6 +249,20 @@ class TrombiController extends Controller {
         $etudiantRepository = $this->getEtudiantRepo();
         $etudiant = $etudiantRepository->find($idEtudiant);
         $em->remove($etudiant);
+        $em->flush();
+        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+    }
+    
+    
+     /**
+     * @Route("/suppGrp/{idGroupe}", name="suppGrp")
+     */
+    public function suppressionGroupeAction($idGroupe) {
+        $doctrine = $this->getDoctrine();
+        $em = $doctrine->getManager();
+        $groupeRepository = $em->getRepository('IutTrombiBundle:Groupe');
+        $groupe = $groupeRepository->find($idGroupe);
+        $em->remove($groupe);
         $em->flush();
         return $this->render('IutTrombiBundle:Trombi:index.html.twig');
     }
