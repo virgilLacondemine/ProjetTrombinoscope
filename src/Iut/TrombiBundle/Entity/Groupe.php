@@ -29,16 +29,6 @@ class Groupe
     private $id;
 
     /**
-     * @var \Iut\TrombiBundle\Entity\Groupe
-     *
-     * @ORM\ManyToOne(targetEntity="Iut\TrombiBundle\Entity\Groupe")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="id_pere", referencedColumnName="id")
-     * })
-     */
-    private $idPere;
-
-    /**
      * @var \Iut\TrombiBundle\Entity\Semestre
      *
      * @ORM\ManyToOne(targetEntity="Iut\TrombiBundle\Entity\Semestre")
@@ -47,6 +37,16 @@ class Groupe
      * })
      */
     private $idSemestre;
+
+    /**
+     * @var \Iut\TrombiBundle\Entity\Groupe
+     *
+     * @ORM\ManyToOne(targetEntity="Iut\TrombiBundle\Entity\Groupe")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="id_pere", referencedColumnName="id")
+     * })
+     */
+    private $idPere;
 
     /**
      * @var \Doctrine\Common\Collections\Collection
@@ -98,29 +98,6 @@ class Groupe
     }
 
     /**
-     * Set idPere
-     *
-     * @param \Iut\TrombiBundle\Entity\Groupe $idPere
-     * @return Groupe
-     */
-    public function setIdPere(\Iut\TrombiBundle\Entity\Groupe $idPere = null)
-    {
-        $this->idPere = $idPere;
-
-        return $this;
-    }
-
-    /**
-     * Get idPere
-     *
-     * @return \Iut\TrombiBundle\Entity\Groupe 
-     */
-    public function getIdPere()
-    {
-        return $this->idPere;
-    }
-
-    /**
      * Set idSemestre
      *
      * @param \Iut\TrombiBundle\Entity\Semestre $idSemestre
@@ -141,6 +118,29 @@ class Groupe
     public function getIdSemestre()
     {
         return $this->idSemestre;
+    }
+
+    /**
+     * Set idPere
+     *
+     * @param \Iut\TrombiBundle\Entity\Groupe $idPere
+     * @return Groupe
+     */
+    public function setIdPere(\Iut\TrombiBundle\Entity\Groupe $idPere = null)
+    {
+        $this->idPere = $idPere;
+
+        return $this;
+    }
+
+    /**
+     * Get idPere
+     *
+     * @return \Iut\TrombiBundle\Entity\Groupe 
+     */
+    public function getIdPere()
+    {
+        return $this->idPere;
     }
 
     /**

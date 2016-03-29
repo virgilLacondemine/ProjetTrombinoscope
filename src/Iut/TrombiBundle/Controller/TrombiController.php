@@ -84,12 +84,11 @@ class TrombiController extends Controller {
         }
     }
 
-    
-        /**
+    /**
      * 
      * @Route("/displayGroupe", name="displayGroupe")
      */
-        public function displayGroupeAction() {
+    public function displayGroupeAction() {
         $doctrine = $this->getDoctrine();
         $em = $doctrine->getManager();
         $semestreRepository = $em->getRepository('IutTrombiBundle:Semestre');
@@ -97,11 +96,11 @@ class TrombiController extends Controller {
         $les_semestres = $semestreRepository->findAll();
         $les_groupes = $groupeRepository->findAll();
         $array = array('groupes' => $les_groupes,
-                    'semestres' => $les_semestres);
+            'semestres' => $les_semestres);
 
         return $this->render('IutTrombiBundle:Trombi:editionGroupe.html.twig', $array);
     }
-    
+
     /**
      * 
      * @Route("/import", name="import")
@@ -125,6 +124,7 @@ class TrombiController extends Controller {
                 $etu = new \Iut\TrombiBundle\Entity\Etudiant();
                 $etu->setNom($liste[28]);
                 $etu->setPrenom($liste[30]);
+                $etu->setNoetudiant($liste[25]);
                 $etu->setUrlPhoto("img/photos/default.gif");
                 $etu->addIdGroupe($td1);
                 $td1->addIdEtudiant($etu);
@@ -210,8 +210,8 @@ class TrombiController extends Controller {
 
         return $this->render('IutTrombiBundle:Trombi:index.html.twig');
     }
-    
-     /**
+
+    /**
      * @Route("/modifGrp", name="modifGrp")
      */
     public function modifGrpAction() {
@@ -229,7 +229,7 @@ class TrombiController extends Controller {
         $new_semestre = $semestreRepository->find($form_groupe['idSemestre']);
         $new_pere = $groupeRepository->find($form_groupe['idPere']);
         $groupe = $groupeRepository->find($form_groupe['id']);
-       
+
         $groupe->setLibelle($form_groupe['libelle']);
         $groupe->setIdSemestre($new_semestre);
         $groupe->setIdPere($new_pere);
@@ -252,9 +252,8 @@ class TrombiController extends Controller {
         $em->flush();
         return $this->render('IutTrombiBundle:Trombi:index.html.twig');
     }
-    
-    
-     /**
+
+    /**
      * @Route("/suppGrp/{idGroupe}", name="suppGrp")
      */
     public function suppressionGroupeAction($idGroupe) {
@@ -359,34 +358,84 @@ class TrombiController extends Controller {
 
         $pdf = new \FPDF();
         $pdf->AddPage();
-        $pdf->SetFont('Arial', 'B', 16);
-        //En-tête
-        $pdf->Cell(80, 7, 'Nom', 1);
-        $pdf->Cell(52, 7, 'Prenom', 1);
-        $pdf->Cell(40, 7, 'Signature', 1);
+        $pdf->SetFont('arial', '', 10);
+        if ($p_idGroupe == -1) {
+            $pdf->Cell(160, 7, 'Feuille d\'emargement - ' . $semestreRepository->find($p_idSemestre)->getLibelle());
+        } else {
+            $pdf->Cell(160, 7, 'Feuille d\'emargement - ' . $semestreRepository->find($p_idSemestre)->getLibelle() . ' - Groupe ' . $groupeRepository->find($p_idGroupe)->getLibelle());
+        }
         $pdf->Ln();
-
+        $pdf->Ln();
+        $pdf->Cell(80, 7, 'Enseignant :', 'LT');
+        $pdf->Cell(80, 7, 'Date :', 'RT');
+        $pdf->Ln();
+        $pdf->Cell(160, 7, '', 'LR');
+        $pdf->Ln();
+        $pdf->Cell(80, 7, 'Matiere :', 'L');
+        $pdf->Cell(80, 7, 'Horaire :', 'R');
+        $pdf->Ln();
+        $pdf->Cell(160, 7, '', 'LRB');
+        $pdf->Ln();
+        $pdf->Ln();
         if ($p_idGroupe == -1) {
             $semestre = $semestreRepository->find($p_idSemestre);
             $groupes = $groupeRepository->findBy(array(
                 'idSemestre' => $semestre
             ));
             $liste_etudiant = $this->trieEtudiantSemestre($groupes, $etudiants);
-            // Données
+            //En-tête
+            $pdf->Cell(15, 5, 'Effectif :');
+            $pdf->Cell(10, 5, count($liste_etudiant));
+            $pdf->Ln();
+            $pdf->Ln();
+            $pdf->Cell(21, 7, 'No Etudiant', 1);
+            $pdf->Cell(70, 7, 'Nom Prenom', 1);
+            $pdf->Cell(10, 7, 'TD', 1);
+            $pdf->Cell(10, 7, 'TP', 1);
+            $pdf->Cell(40, 7, 'Emargement', 1);
+            $pdf->Ln();
             foreach ($liste_etudiant as $etudiant) {
-                $pdf->Cell(80, 6, $etudiant->getNom(), 1);
-                $pdf->Cell(52, 6, $etudiant->getPrenom(), 1);
-                $pdf->Cell(40, 6, ' ', 1);
+                foreach ($etudiant->getIdGroupe() as $groupe_etudiant) {
+                    if ($groupe_etudiant->getIdPere() == null) {
+                        $td = $groupe_etudiant;
+                    } else {
+                        $tp = $groupe_etudiant;
+                    }
+                }
+                $pdf->Cell(21, 5, $etudiant->getNoEtudiant(), 1);
+                $pdf->Cell(70, 5, $etudiant->getNom() . '  ' . $etudiant->getPrenom(), 1);
+                $pdf->Cell(10, 5, $td->getLibelle(), 1);
+                $pdf->Cell(10, 5, $tp->getLibelle(), 1);
+                $pdf->Cell(40, 5, ' ', 1);
                 $pdf->Ln();
             }
             $pdf->Output('D', 'feuille_emargement_' . $semestre->getLibelle() . '.pdf', true);
         } else {
             $groupe = $groupeRepository->find($p_idGroupe);
             $liste_etudiant = $this->trieEtudiantGroupe($groupe, $etudiants);
+            $pdf->Cell(15, 5, 'Effectif :');
+            $pdf->Cell(10, 5, count($liste_etudiant));
+            $pdf->Ln();
+            $pdf->Ln();
+            $pdf->Cell(21, 7, 'No Etudiant', 1);
+            $pdf->Cell(70, 7, 'Nom Prenom', 1);
+            $pdf->Cell(10, 7, 'TD', 1);
+            $pdf->Cell(10, 7, 'TP', 1);
+            $pdf->Cell(40, 7, 'Emargement', 1);
+            $pdf->Ln();
             foreach ($liste_etudiant as $etudiant) {
-                $pdf->Cell(80, 6, $etudiant->getNom(), 1);
-                $pdf->Cell(52, 6, $etudiant->getPrenom(), 1);
-                $pdf->Cell(40, 6, ' ', 1);
+                foreach ($etudiant->getIdGroupe() as $groupe_etudiant) {
+                    if ($groupe_etudiant->getIdPere() == null) {
+                        $td = $groupe_etudiant;
+                    } else {
+                        $tp = $groupe_etudiant;
+                    }
+                }
+                $pdf->Cell(21, 5, $etudiant->getNoEtudiant(), 1);
+                $pdf->Cell(70, 5, $etudiant->getNom() . '  ' . $etudiant->getPrenom(), 1);
+                $pdf->Cell(10, 5, $td->getLibelle(), 1);
+                $pdf->Cell(10, 5, $tp->getLibelle(), 1);
+                $pdf->Cell(40, 5, ' ', 1);
                 $pdf->Ln();
             }
             $pdf->Output('D', 'feuille_emargement_' . $groupe->getLibelle() . '.pdf', true);
@@ -395,7 +444,7 @@ class TrombiController extends Controller {
 
         return $this->render('IutTrombiBundle:Trombi:index.html.twig');
     }
-    
+
     /**
      * @Route("/exportExcelListe/{p_idGroupe}/{p_idSemestre}",name="exportExcelListe")
      * @param type $p_groupe
@@ -419,7 +468,7 @@ class TrombiController extends Controller {
             $this->trieEtudiantGroupe($groupe, $etudiants);
         }
         print '<table brder=1>'
-        . '<TR><TD>Nom</TD>'
+                . '<TR><TD>Nom</TD>'
                 . '<TD>Prenom</TD><TD>TD</TD><TD>TP</TD></TR><TR>';
     }
 
