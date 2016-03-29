@@ -9,11 +9,32 @@
 {% endblock %}
 
 {% block body %}
-    {% for etudiant in etudiants %}
-        {% if etudiant.idGroupe[0] == archive %}
-            <div class="row">
-                {{ etudiant.nom }} {{ etudiant.prenom }} 
+    <div class="panel-group" id="promotions" role="tablist" aria-multiselectable="true">
+        {% for promotion in promotions %}
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="heading_promotion_{{ promotion.annee }}">
+                    <h4 class="panel-title">
+                        <a role="button" data-toggle="collapse" data-parent="#promotions" href="#collapse_promotion_{{ promotion.annee }}" aria-expanded="true" aria-controls="collapse_promotion_{{ promotion.annee }}">Promotion {{ promotion.annee }}</a>
+                    </h4>
+                </div>
+                <div id="collapse_promotion_{{ promotion.annee }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_promotion_{{ promotion.annee }}">
+                    <div class="panel-body">
+                        {% for etudiant in etudiants %} 
+                            {% if etudiant.promotion == promotion %}
+                                <div class="col-md-3">
+                                    <div class="thumbnail">
+                                        <img src="{{ asset(etudiant.urlPhoto) }}" alt="{{ etudiant.nom }} {{ etudiant.prenom }}" class="img-responsive"/>
+                                        <div class="caption">
+                                            <h4>{{ etudiant.nom }}</h4>
+                                            <h6>{{ etudiant.prenom }}</h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
-        {% endif %}
-    {% endfor %}
+        {% endfor %}
+    </div>
 {% endblock %}

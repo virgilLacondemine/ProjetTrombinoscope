@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Client :  127.0.0.1
--- Généré le :  Mar 29 Mars 2016 à 18:50
+-- Généré le :  Mer 30 Mars 2016 à 00:18
 -- Version du serveur :  5.6.17
 -- Version de PHP :  5.5.12
 
@@ -34,94 +34,6 @@ CREATE TABLE IF NOT EXISTS `dans` (
   KEY `id_groupe` (`id_groupe`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---
--- Contenu de la table `dans`
---
-
-INSERT INTO `dans` (`id_etudiant`, `id_groupe`, `annee`) VALUES
-(253, 38, 0),
-(254, 38, 0),
-(255, 38, 0),
-(256, 38, 0),
-(257, 38, 0),
-(258, 38, 0),
-(259, 38, 0),
-(260, 38, 0),
-(261, 38, 0),
-(262, 38, 0),
-(263, 38, 0),
-(264, 38, 0),
-(265, 38, 0),
-(266, 38, 0),
-(267, 38, 0),
-(268, 38, 0),
-(269, 38, 0),
-(270, 38, 0),
-(271, 38, 0),
-(272, 38, 0),
-(273, 38, 0),
-(274, 38, 0),
-(275, 38, 0),
-(276, 38, 0),
-(277, 38, 0),
-(278, 38, 0),
-(279, 38, 0),
-(280, 38, 0),
-(281, 38, 0),
-(282, 38, 0),
-(283, 38, 0),
-(284, 38, 0),
-(285, 38, 0),
-(286, 38, 0),
-(287, 38, 0),
-(288, 38, 0),
-(289, 38, 0),
-(290, 38, 0),
-(291, 38, 0),
-(292, 38, 0),
-(293, 38, 0),
-(294, 38, 0),
-(295, 38, 0),
-(296, 38, 0),
-(297, 38, 0),
-(298, 38, 0),
-(299, 38, 0),
-(300, 38, 0),
-(301, 38, 0),
-(302, 38, 0),
-(303, 38, 0),
-(304, 38, 0),
-(305, 38, 0),
-(306, 38, 0),
-(307, 38, 0),
-(308, 38, 0),
-(309, 38, 0),
-(310, 38, 0),
-(311, 38, 0),
-(312, 38, 0),
-(313, 38, 0),
-(314, 38, 0),
-(315, 38, 0),
-(316, 38, 0),
-(317, 38, 0),
-(318, 38, 0),
-(319, 38, 0),
-(320, 38, 0),
-(321, 38, 0),
-(322, 38, 0),
-(323, 38, 0),
-(324, 38, 0),
-(325, 38, 0),
-(326, 38, 0),
-(327, 38, 0),
-(328, 38, 0),
-(329, 38, 0),
-(330, 38, 0),
-(331, 38, 0),
-(332, 38, 0),
-(333, 38, 0),
-(334, 38, 0);
-
 -- --------------------------------------------------------
 
 --
@@ -134,96 +46,100 @@ CREATE TABLE IF NOT EXISTS `etudiant` (
   `nom` varchar(25) NOT NULL,
   `prenom` varchar(20) NOT NULL,
   `url_photo` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=335 ;
+  `promotion` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `promotion` (`promotion`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=583 ;
 
 --
 -- Contenu de la table `etudiant`
 --
 
-INSERT INTO `etudiant` (`id`, `noEtudiant`, `nom`, `prenom`, `url_photo`) VALUES
-(253, 21522624, 'ALIOT', 'MICKAEL', 'img/photos/default.gif'),
-(254, 21522917, 'AMBRY', 'MAXIME', 'img/photos/default.gif'),
-(255, 21424448, 'AMILHAUD', 'MARTIN', 'img/photos/default.gif'),
-(256, 21523281, 'AUBE', 'MATHIEU', 'img/photos/default.gif'),
-(257, 21522236, 'AUSSAGUEL', 'LAMBERT', 'img/photos/default.gif'),
-(258, 21521417, 'BARAMA', 'RAYAN', 'img/photos/default.gif'),
-(259, 21524290, 'BATTON', 'HUGO', 'img/photos/default.gif'),
-(260, 21524496, 'BECHARI', 'BILAL', 'img/photos/default.gif'),
-(261, 21520082, 'BERARD', 'DYLAN', 'img/photos/default.gif'),
-(262, 21520009, 'BILLON', 'EVA', 'img/photos/default.gif'),
-(263, 21523840, 'BLAZY', 'ENZO', 'img/photos/default.gif'),
-(264, 21520838, 'BOGACZYK', 'PIERRE', 'img/photos/default.gif'),
-(265, 21521010, 'BOUREAU', 'EMMANUEL', 'img/photos/default.gif'),
-(266, 21520152, 'BRET', 'XAVIER', 'img/photos/default.gif'),
-(267, 21524112, 'BRISAC', 'ALFRED', 'img/photos/default.gif'),
-(268, 21520073, 'CABROL', 'BENJAMIN', 'img/photos/default.gif'),
-(269, 21524357, 'CANSEV', 'ALI', 'img/photos/default.gif'),
-(270, 21520398, 'CARMICHAEL', 'JADE', 'img/photos/default.gif'),
-(271, 21523929, 'CHASSAING', 'LUKA', 'img/photos/default.gif'),
-(272, 21520016, 'CLUSEL', 'MATHIEU', 'img/photos/default.gif'),
-(273, 21526441, 'COSTE', 'CLEMENT', 'img/photos/default.gif'),
-(274, 21521967, 'COSTECHAREYRE', 'BENOIT', 'img/photos/default.gif'),
-(275, 21520010, 'DAZY', 'NICODEME', 'img/photos/default.gif'),
-(276, 21522036, 'DELARBRE', 'MORGAN', 'img/photos/default.gif'),
-(277, 21528998, 'DELAUNAY', 'JEAN', 'img/photos/default.gif'),
-(278, 21524014, 'DESTRAIT', 'CHARLOTTE', 'img/photos/default.gif'),
-(279, 21520144, 'DURIEUX', 'ALEXANDRE', 'img/photos/default.gif'),
-(280, 21523890, 'FAYANT', 'DYLAN', 'img/photos/default.gif'),
-(281, 21524131, 'FERRANT', 'HUGO', 'img/photos/default.gif'),
-(282, 21522304, 'FLUCHAIRE', 'VICTOR', 'img/photos/default.gif'),
-(283, 21522993, 'FOEX', 'SIMON', 'img/photos/default.gif'),
-(284, 21521554, 'GEORGE--LEXCELLENT', 'ADRIEN', 'img/photos/default.gif'),
-(285, 21524480, 'GERIN', 'GAUTHIER', 'img/photos/default.gif'),
-(286, 21520029, 'GODART', 'QUENTIN', 'img/photos/default.gif'),
-(287, 21523805, 'GOLMARD', 'JOHANN', 'img/photos/default.gif'),
-(288, 21523847, 'GRAVIER', 'AUDRAN', 'img/photos/default.gif'),
-(289, 21520143, 'GRIMAUD', 'CEDRIC', 'img/photos/default.gif'),
-(290, 21522195, 'HASSAINE', 'ABDERRAHMANE', 'img/photos/default.gif'),
-(291, 21523723, 'HENRION', 'JULIEN', 'img/photos/default.gif'),
-(292, 21520088, 'JACOB', 'JULIEN', 'img/photos/default.gif'),
-(293, 21523851, 'JOURDAN', 'NICOLAS', 'img/photos/default.gif'),
-(294, 21523268, 'LABAN', 'BENOIT', 'img/photos/default.gif'),
-(295, 21520129, 'LAPCHIK', 'ANDREY', 'img/photos/default.gif'),
-(296, 21521940, 'LECOINTE', 'JEREMY', 'img/photos/default.gif'),
-(297, 21520423, 'LECOMTE', 'LOIC', 'img/photos/default.gif'),
-(298, 21520087, 'LEFEUVRE', 'VALENTIN', 'img/photos/default.gif'),
-(299, 21420362, 'LOGUT', 'NICOLAS', 'img/photos/default.gif'),
-(300, 21520038, 'LORETTE-FROIDEVAUX', 'THEO', 'img/photos/default.gif'),
-(301, 21520728, 'LUCIANO', 'RAPHAEL', 'img/photos/default.gif'),
-(302, 21520826, 'MAHE', 'FLORIAN', 'img/photos/default.gif'),
-(303, 21523568, 'MAHIR', 'MEHDI', 'img/photos/default.gif'),
-(304, 21521524, 'MARTIN', 'GUILLAUME', 'img/photos/default.gif'),
-(305, 21523014, 'MARTIN', 'THIBAUT', 'img/photos/default.gif'),
-(306, 21520049, 'MATHLOUTHI', 'SARAH', 'img/photos/default.gif'),
-(307, 21520121, 'MORDOHAY', 'WILLIAM', 'img/photos/default.gif'),
-(308, 21523307, 'MURER', 'RUDY', 'img/photos/default.gif'),
-(309, 21520076, 'NEYRET', 'OLIVIER', 'img/photos/default.gif'),
-(310, 21524090, 'PALMIER', 'BENJAMIN', 'img/photos/default.gif'),
-(311, 21520160, 'PASQUIOU', 'PAUL', 'img/photos/default.gif'),
-(312, 21422055, 'PETIT', 'THOMAS', 'img/photos/default.gif'),
-(313, 21521748, 'PEYRONNET', 'CEDRIC', 'img/photos/default.gif'),
-(314, 21421378, 'PIGNARD', 'FLORIAN', 'img/photos/default.gif'),
-(315, 21522528, 'PINTRAND', 'THIBAUT', 'img/photos/default.gif'),
-(316, 21520093, 'POPEK', 'NICOLAS', 'img/photos/default.gif'),
-(317, 21521390, 'PRADES', 'MICKAEL', 'img/photos/default.gif'),
-(318, 21520080, 'PREVOST', 'NICOLAS', 'img/photos/default.gif'),
-(319, 21523993, 'RAMOS', 'CYRIL', 'img/photos/default.gif'),
-(320, 21520066, 'REDON', 'RAPHAEL', 'img/photos/default.gif'),
-(321, 21520097, 'REY', 'QUENTIN', 'img/photos/default.gif'),
-(322, 21527872, 'REYNAUD', 'LOUIS', 'img/photos/default.gif'),
-(323, 21520372, 'RIVOIRE', 'GASPARD', 'img/photos/default.gif'),
-(324, 21523409, 'ROSTAING', 'MEHDI', 'img/photos/default.gif'),
-(325, 21521688, 'SABOURIN', 'YOANN', 'img/photos/default.gif'),
-(326, 21523814, 'SAJIDE', 'ADIL', 'img/photos/default.gif'),
-(327, 21523875, 'SERRAZ', 'MATTHIEU', 'img/photos/default.gif'),
-(328, 21523443, 'SOUBEYRAND', 'JULES', 'img/photos/default.gif'),
-(329, 21520090, 'STITI', 'ILIAS', 'img/photos/default.gif'),
-(330, 21524007, 'TAGHAT', 'RACHID', 'img/photos/default.gif'),
-(331, 21520083, 'TURPIN', 'ANGELIQUE', 'img/photos/default.gif'),
-(332, 21520150, 'VALAYER', 'BAPTISTE', 'img/photos/default.gif'),
-(333, 21520154, 'VEYRE', 'AURELIEN', 'img/photos/default.gif'),
-(334, 21525212, 'VIDAL', 'FLORENT', 'img/photos/default.gif');
+INSERT INTO `etudiant` (`id`, `noEtudiant`, `nom`, `prenom`, `url_photo`, `promotion`) VALUES
+(499, 21522624, 'ALIOT', 'MICKAEL', 'img/photos/default.gif', 84),
+(500, 21522917, 'AMBRY', 'MAXIME', 'img/photos/default.gif', 84),
+(501, 21424448, 'AMILHAUD', 'MARTIN', 'img/photos/default.gif', 84),
+(502, 21523281, 'AUBE', 'MATHIEU', 'img/photos/default.gif', 84),
+(503, 21522236, 'AUSSAGUEL', 'LAMBERT', 'img/photos/default.gif', 84),
+(504, 21521417, 'BARAMA', 'RAYAN', 'img/photos/default.gif', 84),
+(505, 21524290, 'BATTON', 'HUGO', 'img/photos/default.gif', 84),
+(506, 21524496, 'BECHARI', 'BILAL', 'img/photos/default.gif', 84),
+(507, 21520082, 'BERARD', 'DYLAN', 'img/photos/default.gif', 84),
+(508, 21520009, 'BILLON', 'EVA', 'img/photos/default.gif', 84),
+(509, 21523840, 'BLAZY', 'ENZO', 'img/photos/default.gif', 84),
+(510, 21520838, 'BOGACZYK', 'PIERRE', 'img/photos/default.gif', 84),
+(511, 21521010, 'BOUREAU', 'EMMANUEL', 'img/photos/default.gif', 84),
+(512, 21520152, 'BRET', 'XAVIER', 'img/photos/default.gif', 84),
+(513, 21524112, 'BRISAC', 'ALFRED', 'img/photos/default.gif', 84),
+(514, 21520073, 'CABROL', 'BENJAMIN', 'img/photos/default.gif', 84),
+(515, 21524357, 'CANSEV', 'ALI', 'img/photos/default.gif', 84),
+(516, 21520398, 'CARMICHAEL', 'JADE', 'img/photos/default.gif', 84),
+(517, 21523929, 'CHASSAING', 'LUKA', 'img/photos/default.gif', 84),
+(518, 21520016, 'CLUSEL', 'MATHIEU', 'img/photos/default.gif', 84),
+(519, 21526441, 'COSTE', 'CLEMENT', 'img/photos/default.gif', 84),
+(520, 21521967, 'COSTECHAREYRE', 'BENOIT', 'img/photos/default.gif', 84),
+(521, 21520010, 'DAZY', 'NICODEME', 'img/photos/default.gif', 84),
+(522, 21522036, 'DELARBRE', 'MORGAN', 'img/photos/default.gif', 84),
+(523, 21528998, 'DELAUNAY', 'JEAN', 'img/photos/default.gif', 84),
+(524, 21524014, 'DESTRAIT', 'CHARLOTTE', 'img/photos/default.gif', 84),
+(525, 21520144, 'DURIEUX', 'ALEXANDRE', 'img/photos/default.gif', 84),
+(526, 21523890, 'FAYANT', 'DYLAN', 'img/photos/default.gif', 84),
+(527, 21524131, 'FERRANT', 'HUGO', 'img/photos/default.gif', 84),
+(528, 21522304, 'FLUCHAIRE', 'VICTOR', 'img/photos/default.gif', 84),
+(529, 21522993, 'FOEX', 'SIMON', 'img/photos/default.gif', 84),
+(530, 21521554, 'GEORGE--LEXCELLENT', 'ADRIEN', 'img/photos/default.gif', 84),
+(531, 21524480, 'GERIN', 'GAUTHIER', 'img/photos/default.gif', 84),
+(532, 21520029, 'GODART', 'QUENTIN', 'img/photos/default.gif', 84),
+(533, 21523805, 'GOLMARD', 'JOHANN', 'img/photos/default.gif', 84),
+(534, 21523847, 'GRAVIER', 'AUDRAN', 'img/photos/default.gif', 84),
+(535, 21520143, 'GRIMAUD', 'CEDRIC', 'img/photos/default.gif', 84),
+(536, 21522195, 'HASSAINE', 'ABDERRAHMANE', 'img/photos/default.gif', 84),
+(537, 21523723, 'HENRION', 'JULIEN', 'img/photos/default.gif', 84),
+(538, 21520088, 'JACOB', 'JULIEN', 'img/photos/default.gif', 84),
+(539, 21523851, 'JOURDAN', 'NICOLAS', 'img/photos/default.gif', 84),
+(540, 21523268, 'LABAN', 'BENOIT', 'img/photos/default.gif', 84),
+(541, 21520129, 'LAPCHIK', 'ANDREY', 'img/photos/default.gif', 84),
+(542, 21521940, 'LECOINTE', 'JEREMY', 'img/photos/default.gif', 84),
+(543, 21520423, 'LECOMTE', 'LOIC', 'img/photos/default.gif', 84),
+(544, 21520087, 'LEFEUVRE', 'VALENTIN', 'img/photos/default.gif', 84),
+(545, 21420362, 'LOGUT', 'NICOLAS', 'img/photos/default.gif', 84),
+(546, 21520038, 'LORETTE-FROIDEVAUX', 'THEO', 'img/photos/default.gif', 84),
+(547, 21520728, 'LUCIANO', 'RAPHAEL', 'img/photos/default.gif', 84),
+(548, 21520826, 'MAHE', 'FLORIAN', 'img/photos/default.gif', 84),
+(549, 21523568, 'MAHIR', 'MEHDI', 'img/photos/default.gif', 84),
+(550, 21521524, 'MARTIN', 'GUILLAUME', 'img/photos/default.gif', 84),
+(551, 21523014, 'MARTIN', 'THIBAUT', 'img/photos/default.gif', 84),
+(552, 21520049, 'MATHLOUTHI', 'SARAH', 'img/photos/default.gif', 84),
+(553, 21520121, 'MORDOHAY', 'WILLIAM', 'img/photos/default.gif', 84),
+(554, 21523307, 'MURER', 'RUDY', 'img/photos/default.gif', 84),
+(555, 21520076, 'NEYRET', 'OLIVIER', 'img/photos/default.gif', 84),
+(556, 21524090, 'PALMIER', 'BENJAMIN', 'img/photos/default.gif', 84),
+(557, 21520160, 'PASQUIOU', 'PAUL', 'img/photos/default.gif', 84),
+(558, 21422055, 'PETIT', 'THOMAS', 'img/photos/default.gif', 84),
+(559, 21521748, 'PEYRONNET', 'CEDRIC', 'img/photos/default.gif', 84),
+(560, 21421378, 'PIGNARD', 'FLORIAN', 'img/photos/default.gif', 84),
+(561, 21522528, 'PINTRAND', 'THIBAUT', 'img/photos/default.gif', 84),
+(562, 21520093, 'POPEK', 'NICOLAS', 'img/photos/default.gif', 84),
+(563, 21521390, 'PRADES', 'MICKAEL', 'img/photos/default.gif', 84),
+(564, 21520080, 'PREVOST', 'NICOLAS', 'img/photos/default.gif', 84),
+(565, 21523993, 'RAMOS', 'CYRIL', 'img/photos/default.gif', 84),
+(566, 21520066, 'REDON', 'RAPHAEL', 'img/photos/default.gif', 84),
+(567, 21520097, 'REY', 'QUENTIN', 'img/photos/default.gif', 84),
+(568, 21527872, 'REYNAUD', 'LOUIS', 'img/photos/default.gif', 84),
+(569, 21520372, 'RIVOIRE', 'GASPARD', 'img/photos/default.gif', 84),
+(570, 21523409, 'ROSTAING', 'MEHDI', 'img/photos/default.gif', 84),
+(571, 21521688, 'SABOURIN', 'YOANN', 'img/photos/default.gif', 84),
+(572, 21523814, 'SAJIDE', 'ADIL', 'img/photos/default.gif', 84),
+(573, 21523875, 'SERRAZ', 'MATTHIEU', 'img/photos/default.gif', 84),
+(574, 21523443, 'SOUBEYRAND', 'JULES', 'img/photos/default.gif', 84),
+(575, 21520090, 'STITI', 'ILIAS', 'img/photos/default.gif', 84),
+(576, 21524007, 'TAGHAT', 'RACHID', 'img/photos/default.gif', 84),
+(577, 21520083, 'TURPIN', 'ANGELIQUE', 'img/photos/default.gif', 84),
+(578, 21520150, 'VALAYER', 'BAPTISTE', 'img/photos/default.gif', 84),
+(579, 21520154, 'VEYRE', 'AURELIEN', 'img/photos/default.gif', 84),
+(580, 21525212, 'VIDAL', 'FLORENT', 'img/photos/default.gif', 84),
+(581, 236598, 'LACONDEMINE', 'Virgil', '.', 85),
+(582, 365984, 'LEPRUNIER', 'Hugo', '.', 86);
 
 -- --------------------------------------------------------
 
@@ -281,8 +197,29 @@ INSERT INTO `groupe` (`id`, `libelle`, `id_semestre`, `id_pere`) VALUES
 (33, 'TP1', 4, 29),
 (34, 'TP2', 4, 29),
 (35, 'TP3', 4, 30),
-(36, 'TP4', 4, 30),
-(38, 'ARCHIVE', NULL, NULL);
+(36, 'TP4', 4, 30);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `promotion`
+--
+
+CREATE TABLE IF NOT EXISTS `promotion` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `annee` int(4) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=87 ;
+
+--
+-- Contenu de la table `promotion`
+--
+
+INSERT INTO `promotion` (`id`, `annee`) VALUES
+(84, 2018),
+(85, 2017),
+(86, 2016);
 
 -- --------------------------------------------------------
 
@@ -316,6 +253,12 @@ INSERT INTO `semestre` (`id`, `libelle`) VALUES
 ALTER TABLE `dans`
   ADD CONSTRAINT `dans_ibfk_1` FOREIGN KEY (`id_etudiant`) REFERENCES `etudiant` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `dans_ibfk_2` FOREIGN KEY (`id_groupe`) REFERENCES `groupe` (`id`);
+
+--
+-- Contraintes pour la table `etudiant`
+--
+ALTER TABLE `etudiant`
+  ADD CONSTRAINT `etudiant_ibfk_1` FOREIGN KEY (`promotion`) REFERENCES `promotion` (`id`);
 
 --
 -- Contraintes pour la table `groupe`

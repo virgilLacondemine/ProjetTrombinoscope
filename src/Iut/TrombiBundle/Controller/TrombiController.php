@@ -105,13 +105,11 @@ class TrombiController extends Controller {
      * @Route("/displayArchive", name="displayArchive")
      */
     public function displayArchiveAction() {
-        $archive = $this->getGroupeRepo()->findOneBy(array(
-            'idSemestre' => null
-        ));
         $etudiants_archive = $this->getEtudiantRepo()->findAll();
+        $promotions = $this->getPromotionRepo()->findAll();
         $array = array(
-            'archive' => $archive,
-            'etudiants' => $etudiants_archive
+            'etudiants' => $etudiants_archive,
+            'promotions' => $promotions
         );
         return $this->render('IutTrombiBundle:Trombi:archive.html.twig', $array);
     }
@@ -132,8 +130,17 @@ class TrombiController extends Controller {
             $ligne = fgets($fichier);
             $em = $this->getEM();
             $groupeRepository = $this->getGroupeRepo();
-            $td1 = $groupeRepository->find(1);
-            $tp1 = $groupeRepository->find(2);
+            $td = $groupeRepository->findOneBy(array(
+                'idSemestre' => $this->getSemestreRepo()->find(1),
+                'idPere' => null
+            ));
+            $tp = $groupeRepository->findOneBy(array(
+                'idSemestre' => $this->getSemestreRepo()->find(1),
+                'idPere' => $td
+            ));
+            $promo = new \Iut\TrombiBundle\Entity\Promotion();
+            $promo->setAnnee(getdate()['year'] + 2);
+            $em->persist($promo);
             while ($ligne = fgets($fichier)) {
                 $liste = explode("	", $ligne);
                 $etu = new \Iut\TrombiBundle\Entity\Etudiant();
@@ -141,11 +148,12 @@ class TrombiController extends Controller {
                 $etu->setPrenom($liste[30]);
                 $etu->setNoetudiant($liste[25]);
                 $etu->setUrlPhoto("img/photos/default.gif");
-                $etu->addIdGroupe($td1);
-                $td1->addIdEtudiant($etu);
+                $etu->setPromotion($promo);
+                $etu->addIdGroupe($td);
+                $td->addIdEtudiant($etu);
                 $em->persist($etu);
-                $em->persist($td1);
-                $etu->addIdGroupe($tp1);
+                $em->persist($td);
+                $etu->addIdGroupe($tp);
                 $em->persist($etu);
                 $em->flush();
             }
@@ -332,9 +340,6 @@ class TrombiController extends Controller {
                 'idSemestre' => $semestre
             ));
             if ($semestre->getId() == 4) {
-                $new_td = $groupeRepository->findOneBy(array(
-                    'idSemestre' => null
-                ));
                 $nextSem = $semestre;
             } else {
                 $new_td = $groupeRepository->findBy(array(
@@ -352,17 +357,13 @@ class TrombiController extends Controller {
                         if ($groupe->getIdPere() == null) {
                             $groupe->removeIdEtudiant($etudiant);
                             $etudiant->removeIdGroupe($groupe);
-                            if ($semestre->getId() == 4) {
-                                $etudiant->addIdGroupe($new_td);
-                                $new_td->addIdEtudiant($etudiant);
-                                $em->persist($new_td);
-                            } else {
+                            if (isset($new_td)) {
                                 $etudiant->addIdGroupe($new_td[0]);
                                 $new_td[0]->addIdEtudiant($etudiant);
-                                $em->persist($new_td[0]);
+                                //$em->persist($new_td[0]);
                             }
-                            $em->persist($etudiant);
-                            $em->persist($groupe);
+                            //$em->persist($etudiant);
+                            //$em->persist($groupe);
                             $em->flush();
                         } else {
                             $etudiant->removeIdGroupe($groupe);
@@ -370,9 +371,10 @@ class TrombiController extends Controller {
                             if (isset($new_tp)) {
                                 $etudiant->addIdGroupe($new_tp[0]);
                                 $new_tp[0]->addIdEtudiant($etudiant);
-                                $em->persist($new_tp[0]);
+                                //$em->persist($new_tp[0]);
                             }
-                            $em->persist($etudiant);
+                            //$em->persist($etudiant);
+                           // $em->persist($groupe);
                             $em->flush();
                         }
                     }
@@ -537,6 +539,14 @@ class TrombiController extends Controller {
      */
     public function getSemestreRepo() {
         return $this->getEM()->getRepository('IutTrombiBundle:Semestre');
+    }
+
+    /**
+     * Methode pour récuperer le repository Promotion
+     * @return type
+     */
+    public function getPromotionRepo() {
+        return $this->getEM()->getRepository('IutTrombiBundle:Promotion');
     }
 
     /**

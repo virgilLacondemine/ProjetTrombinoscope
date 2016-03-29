@@ -11,7 +11,7 @@
                 <div class="panel-body">
                     <div class="panel-group" id="s{{ semestre.id }}" role="tablist" aria-multiselectable="true">
                         {% for td in les_groupes %}
-                            {% if td.idSemestre != null and td.idSemestre.id == semestre.id and td.idPere == null %}
+                            {% if td.idSemestre.id == semestre.id and td.idPere == null %}
                                 <div class="panel panel-default">
                                     <div class="panel-heading" role="tab" id="heading_s{{ semestre.id }}_{{td.libelle|lower}}">
                                         <h4 class="panel-title">
@@ -91,7 +91,7 @@
                             {% for semestre in les_semestres %}
                                 <option value='#' disabled> {{semestre.libelle}} : </option>
                                 {% for groupe in les_groupes %}
-                                    {% if groupe.idSemestre != null and groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
+                                    {% if groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
                                         <option value="{{ groupe.id }}">{{ groupe.libelle }}</option>
                                     {% endif %}
                                 {% endfor %}
@@ -179,7 +179,7 @@
                             {% for semestre in les_semestres %}
                                 <option value='#' disabled> {{semestre.libelle}} : </option>
                                 {% for groupe in les_groupes %}
-                                    {% if groupe.idSemestre != null and groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
+                                    {% if groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
                                         <option value="{{ groupe.id }}">{{ groupe.libelle }}</option>
                                     {% endif %}
                                 {% endfor %}
