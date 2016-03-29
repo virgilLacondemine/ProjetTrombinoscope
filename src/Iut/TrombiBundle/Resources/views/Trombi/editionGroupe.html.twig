@@ -9,150 +9,150 @@
 {% block body %}
 
     <div class="row">
-    {% for unSemestre in semestres %}
-       <div class="col-lg-3 panel panel-default">
-           <div class="row">
-               <div class="col-lg-5">
-                    {{ unSemestre.libelle }} :
-               </div>
-               <div class="col-lg-2">
-                   <a data-toggle="modal" data-target="#addGrp{{ unSemestre.id }}Modal"><span class="glyphicon glyphicon-plus" style="color:green"></span></a>
-               </div>
-           </div>
-        {% for unGroupe in groupes %}
-            
-            <div class="row">
-                {% if unGroupe.idSemestre == unSemestre %}
-                    <br>
-                    <div class="col-lg-offset-1 col-lg-5">
-                        {{ unGroupe.libelle }}
+        {% for unSemestre in semestres %}
+            <div class="col-lg-3 panel panel-default">
+                <div class="row">
+                    <div class="col-lg-5">
+                        {{ unSemestre.libelle }} :
                     </div>
                     <div class="col-lg-2">
-                        <a data-toggle="modal" data-target="#modifGrp{{unGroupe.id}}Modal"><span class="glyphicon glyphicon-pencil"></span></a>
+                        <a data-toggle="modal" data-target="#addGrp{{ unSemestre.id }}Modal"><span class="glyphicon glyphicon-plus" style="color:green"></span></a>
                     </div>
-                    
-                    
-                    <div class="modal fade" id="modifGrp{{unGroupe.id}}Modal" tabindex="-1" role="dialog" aria-labelledby="modifGrpModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="addGrpModalLabel">Modification d'un groupe</h4>
-            </div>
-            <div class="modal-body">
-                <form action="{{ path('modifGrp')}}" method="POST">
-                    <input type="hidden" value="{{ unGroupe.id }}" name="id" id="id">
-                    <div class="form-group">
-                        <input type="hidden" name="id" >
-                    </div>
-                    <div class="form-group">
-                        <label for="libelle" class="control-label">Nom :</label>
-                        <input type="text" class="form-control" id="libelle" name="libelle" value="{{ unGroupe.libelle }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="idSemestre" class="control-label">Semestre correspondant:</label>
-                        <select class="form-control" id="idSemestre" name="idSemestre">
-                            {% for semestre in semestres %}
-                                {% if unGroupe.idSemestre == semestre %}
-                                    <option value='{{semestre.id}}' selected> {{semestre.libelle}} </option>
-                                {% else %}
-                                    <option value='{{semestre.id}}'> {{semestre.libelle}} </option>
-                                {% endif %}
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="idPere" class="control-label">Groupe TD père (laisser vide si groupe TD):</label>
-                        <select class="form-control" id="idPere" name="idPere">
-                            <option value=''> Pas de père </option>
-                            {% for semestre in semestres %}
-                                <option value='#' disabled> {{semestre.libelle}} : </option>
-                                {% for groupe in groupes %}
-                                    {% if groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
-                                        {% if unGroupe.idPere == groupe %}
-                                            <option value="{{ groupe.id }}" selected>{{ groupe.libelle }}</option>
-                                        {% else %}
-                                            <option value="{{ groupe.id }}">{{ groupe.libelle }}</option>
-                                        {% endif %}
-                                    {% endif %}
-                                {% endfor %}
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <input type="submit" class="btn btn-primary">
-                    </div>
-                </form>                                            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                </div>
+                {% for unGroupe in groupes %}
 
-            </div>
-        </div>
-    </div>
-</div>
-                        
-                        
-                    <div class="col-lg-2">
-                        <a href="{{ path('suppGrp',{'idGroupe':unGroupe.id}) }}>"<span class="glyphicon glyphicon-remove" style="color:red"></span></a>
-                    </div>
-                {% endif %}
-            </div>
-                <div class="modal fade" id="addGrp{{ unSemestre.id }}Modal" tabindex="-1" role="dialog" aria-labelledby="addGrpModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="addGrpModalLabel">Ajout d'un groupe</h4>
-            </div>
-            <div class="modal-body">
-                <form action="{{ path('addGrp') }}" method="POST">
-                    <div class="form-group">
-                        <input type="hidden" name="id" >
-                    </div>
-                    <div class="form-group">
-                        <label for="libelle" class="control-label">Nom :</label>
-                        <input type="text" class="form-control" id="libelle" name="libelle" >
-                    </div>
-                    <div class="form-group">
-                        <label for="idSemestre" class="control-label">Semestre correspondant:</label>
-                        <select class="form-control" id="idPere" name="idSemestre">
-                            {% for semestre in semestres %}
-                                {% if semestre.id == unSemestre.id %}
-                                    <option value='{{semestre.id}}' selected> {{semestre.libelle}} </option>
-                                {% else %}
-                                    <option value='{{semestre.id}}'> {{semestre.libelle}} </option>
-                                {% endif %}    
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="idPere" class="control-label">Groupe TD père (laisser vide si groupe TD):</label>
-                        <select class="form-control" id="idPere" name="idPere">
-                            <option value=''> Pas de père </option>
-                            {% for semestre in semestres %}
-                                <option value='#' disabled> {{semestre.libelle}} : </option>
-                                {% for groupe in groupes %}
-                                    {% if groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
-                                        <option value="{{ groupe.id }}">{{ groupe.libelle }}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <input type="submit" class="btn btn-primary">
-                    </div>
-                </form>                                            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                    <div class="row">
+                        {% if unGroupe.idSemestre == unSemestre %}
+                            <br>
+                            <div class="col-lg-offset-1 col-lg-5">
+                                {{ unGroupe.libelle }}
+                            </div>
+                            <div class="col-lg-2">
+                                <a data-toggle="modal" data-target="#modifGrp{{unGroupe.id}}Modal"><span class="glyphicon glyphicon-pencil"></span></a>
+                            </div>
 
+
+                            <div class="modal fade" id="modifGrp{{unGroupe.id}}Modal" tabindex="-1" role="dialog" aria-labelledby="modifGrpModalLabel">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                            <h4 class="modal-title" id="addGrpModalLabel">Modification d'un groupe</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form action="{{ path('modifGrp')}}" method="POST">
+                                                <input type="hidden" value="{{ unGroupe.id }}" name="id" id="id">
+                                                {#<div class="form-group">
+                                                    <input type="hidden" name="id" >
+                                                </div>#}
+                                                <div class="form-group">
+                                                    <label for="libelle" class="control-label">Nom :</label>
+                                                    <input type="text" class="form-control" id="libelle" name="libelle" value="{{ unGroupe.libelle }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="idSemestre" class="control-label">Semestre correspondant:</label>
+                                                    <select class="form-control" id="idSemestre" name="idSemestre">
+                                                        {% for semestre in semestres %}
+                                                            {% if unGroupe.idSemestre == semestre %}
+                                                                <option value='{{semestre.id}}' selected> {{semestre.libelle}} </option>
+                                                            {% else %}
+                                                                <option value='{{semestre.id}}'> {{semestre.libelle}} </option>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="idPere" class="control-label">Groupe TD père (laisser vide si groupe TD):</label>
+                                                    <select class="form-control" id="idPere" name="idPere">
+                                                        <option value=''> Pas de père </option>
+                                                        {% for semestre in semestres %}
+                                                            <option value='#' disabled> {{semestre.libelle}} : </option>
+                                                            {% for groupe in groupes %}
+                                                                {% if groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
+                                                                    {% if unGroupe.idPere == groupe %}
+                                                                        <option value="{{ groupe.id }}" selected>{{ groupe.libelle }}</option>
+                                                                    {% else %}
+                                                                        <option value="{{ groupe.id }}">{{ groupe.libelle }}</option>
+                                                                    {% endif %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <input type="submit" class="btn btn-primary">
+                                                </div>
+                                            </form>                                            </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="col-lg-2">
+                                <a href="{{ path('suppGrp',{'idGroupe':unGroupe.id}) }}>"<span class="glyphicon glyphicon-remove" style="color:red"></span></a>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="modal fade" id="addGrp{{ unSemestre.id }}Modal" tabindex="-1" role="dialog" aria-labelledby="addGrpModalLabel">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="addGrpModalLabel">Ajout d'un groupe</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="{{ path('addGrp') }}" method="POST">
+                                        <div class="form-group">
+                                            <input type="hidden" name="id" >
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="libelle" class="control-label">Nom :</label>
+                                            <input type="text" class="form-control" id="libelle" name="libelle" >
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="idSemestre" class="control-label">Semestre correspondant:</label>
+                                            <select class="form-control" id="idPere" name="idSemestre">
+                                                {% for semestre in semestres %}
+                                                    {% if semestre.id == unSemestre.id %}
+                                                        <option value='{{semestre.id}}' selected> {{semestre.libelle}} </option>
+                                                    {% else %}
+                                                        <option value='{{semestre.id}}'> {{semestre.libelle}} </option>
+                                                    {% endif %}    
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="idPere" class="control-label">Groupe TD père (laisser vide si groupe TD):</label>
+                                            <select class="form-control" id="idPere" name="idPere">
+                                                <option value=''> Pas de père </option>
+                                                {% for semestre in semestres %}
+                                                    <option value='#' disabled> {{semestre.libelle}} : </option>
+                                                    {% for groupe in groupes %}
+                                                        {% if groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
+                                                            <option value="{{ groupe.id }}">{{ groupe.libelle }}</option>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="submit" class="btn btn-primary">
+                                        </div>
+                                    </form>                                            </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-        </div>
-    </div>
-</div>
         {% endfor %}
-       </div>
-    {% endfor %}
     </div>
-    
+
 {% endblock %}

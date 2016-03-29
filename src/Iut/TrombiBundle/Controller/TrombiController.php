@@ -169,7 +169,7 @@ class TrombiController extends Controller {
         $em->persist($groupe);
         $em->flush();
 
-        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+        return $this->redirectToRoute('displayGroupe');
     }
 
     /**
@@ -233,12 +233,10 @@ class TrombiController extends Controller {
         $groupe->setLibelle($form_groupe['libelle']);
         $groupe->setIdSemestre($new_semestre);
         $groupe->setIdPere($new_pere);
-        $em->persist($new_semestre);
-        $em->persist($new_pere);
         $em->persist($groupe);
         $em->flush();
 
-        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+        return $this->redirectToRoute('displayGroupe');
     }
 
     /**
