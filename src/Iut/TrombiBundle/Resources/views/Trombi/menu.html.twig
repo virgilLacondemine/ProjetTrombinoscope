@@ -11,7 +11,7 @@
                 <div class="panel-body">
                     <div class="panel-group" id="s{{ semestre.id }}" role="tablist" aria-multiselectable="true">
                         {% for td in les_groupes %}
-                            {% if td.idSemestre.id == semestre.id and td.idPere == null %}
+                            {% if td.idSemestre != null and td.idSemestre.id == semestre.id and td.idPere == null %}
                                 <div class="panel panel-default">
                                     <div class="panel-heading" role="tab" id="heading_s{{ semestre.id }}_{{td.libelle|lower}}">
                                         <h4 class="panel-title">
@@ -28,19 +28,12 @@
                                                         {% endif %}
                                                     {% endfor %}
                                             </ul>
-
-                                            <!-- Fin menu déroulant 1A INFO/S1/TD1 -->
-
                                         </div>
                                     </div>
                                 </div>
-
                             {% endif %}
                         {% endfor %}
-                        <!-- Fin menu déroulant 1A INFO/S2 -->
                     </div>
-
-
                 </div>
             </div>
         </div>
@@ -55,22 +48,15 @@
         <div id="collapse_outils" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_outils}">
             <div class="panel-body">
                 <ul class="nav nav-pills nav-stacked">
-                    <li role="ajoutEtudiant"><a data-toggle="modal" data-target="#addModal" >Ajouter un étudiant</a></li>
-                        {#<li role="ajoutEtudiant"><a href="{{ path('switchSem')}}" >Changer de semestre</a></li> #}               
+                    <li role="ajoutEtudiant"><a data-toggle="modal" data-target="#addModal" >Ajouter un étudiant</a></li>               
                     <li role="ajoutEtudiant"><a data-toggle="modal" data-target="#addAllModal">Ajouter des etudiants</a></li>
                     <li role="PasserSemestre"><a href="{{ path('nextSemestre')}}">Passer semestre suivant</a></li>
                     <li role="modeEditionGroupe"><a href="{{ path('displayGroupe') }}">Editer groupe</a></li>
-
+                    <li role="voirArchive"><a href="{{ path('displayArchive') }}">Voir Archive</a></li>
                 </ul>
-
-                <!-- Fin menu déroulant outils -->
-
             </div>
         </div>
     </div>
-
-
-    <!-- Fin menu déroulant 1A INFO/S2 -->
 </div>
 
 
@@ -96,12 +82,16 @@
                         <input type="text" class="form-control" id="prenom" name="prenom">
                     </div>
                     <div class="form-group">
+                        <label for="no_etudiant" class="control-label">No Etudiant :</label>
+                        <input type="text" class="form-control" id="no_etudiant" name="no_etudiant">
+                    </div>
+                    <div class="form-group">
                         <label for="groupe_td" class="control-label">Groupe TD :</label>
                         <select class="form-control" id="groupe_td" name="groupe_td">
                             {% for semestre in les_semestres %}
                                 <option value='#' disabled> {{semestre.libelle}} : </option>
                                 {% for groupe in les_groupes %}
-                                    {% if groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
+                                    {% if groupe.idSemestre != null and groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
                                         <option value="{{ groupe.id }}">{{ groupe.libelle }}</option>
                                     {% endif %}
                                 {% endfor %}
@@ -189,7 +179,7 @@
                             {% for semestre in les_semestres %}
                                 <option value='#' disabled> {{semestre.libelle}} : </option>
                                 {% for groupe in les_groupes %}
-                                    {% if groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
+                                    {% if groupe.idSemestre != null and groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
                                         <option value="{{ groupe.id }}">{{ groupe.libelle }}</option>
                                     {% endif %}
                                 {% endfor %}

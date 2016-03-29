@@ -1,0 +1,19 @@
+{% extends "IutTrombiBundle::layout.html.twig" %}
+
+{% block title %}
+    {{ parent() }} - Archive
+{% endblock %}
+
+{% block group_title %}
+    {{ parent() }} Archive
+{% endblock %}
+
+{% block body %}
+    {% for etudiant in etudiants %}
+        {% if etudiant.idGroupe[0] == archive %}
+            <div class="row">
+                {{ etudiant.nom }} {{ etudiant.prenom }} 
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

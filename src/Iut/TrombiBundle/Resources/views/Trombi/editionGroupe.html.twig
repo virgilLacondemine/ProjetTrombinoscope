@@ -57,7 +57,7 @@
                                             {% for semestre in semestres %}
                                                 <option value='#' disabled> {{semestre.libelle}} : </option>
                                                 {% for groupe in groupes %}
-                                                    {% if groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
+                                                    {% if groupe.idSemestre != null and groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
                                                         <option value="{{ groupe.id }}">{{ groupe.libelle }}</option>
                                                     {% endif %}
                                                 {% endfor %}
@@ -77,7 +77,7 @@
                 </div>
 
                 {% for td in groupes %}
-                    {% if td.idSemestre == unSemestre %}
+                    {% if td.idSemestre != null and td.idSemestre == unSemestre %}
                         <div class="row">
                             {% if td.idPere == null %}
                                 <br>
@@ -125,7 +125,7 @@
                                                             {% for semestre in semestres %}
                                                                 <option value='#' disabled> {{semestre.libelle}} : </option>
                                                                 {% for groupe in groupes %}
-                                                                    {% if groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
+                                                                    {% if groupe.idSemestre != null and groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
                                                                         {% if td.idPere == groupe %}
                                                                             <option value="{{ groupe.id }}" selected>{{ groupe.libelle }}</option>
                                                                         {% else %}
@@ -202,7 +202,7 @@
                                                                 {% for semestre in semestres %}
                                                                     <option value='#' disabled> {{semestre.libelle}} : </option>
                                                                     {% for groupe in groupes %}
-                                                                        {% if groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
+                                                                        {% if groupe.idSemestre != null and groupe.idPere == null and groupe.idSemestre.id == semestre.id %}
                                                                             {% if tp.idPere == groupe %}
                                                                                 <option value="{{ groupe.id }}" selected>{{ groupe.libelle }}</option>
                                                                             {% else %}

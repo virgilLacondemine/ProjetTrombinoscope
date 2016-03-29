@@ -102,6 +102,21 @@ class TrombiController extends Controller {
     }
 
     /**
+     * @Route("/displayArchive", name="displayArchive")
+     */
+    public function displayArchiveAction() {
+        $archive = $this->getGroupeRepo()->findOneBy(array(
+            'idSemestre' => null
+        ));
+        $etudiants_archive = $this->getEtudiantRepo()->findAll();
+        $array = array(
+            'archive' => $archive,
+            'etudiants' => $etudiants_archive
+        );
+        return $this->render('IutTrombiBundle:Trombi:archive.html.twig', $array);
+    }
+
+    /**
      * 
      * @Route("/import", name="import")
      */
@@ -181,6 +196,7 @@ class TrombiController extends Controller {
             'id' => $_POST['id'],
             'nom' => $_POST['nom'],
             'prenom' => $_POST['prenom'],
+            'no_etudiant' => $_POST['no_etudiant'],
             'groupe_td' => $_POST['groupe_td'],
             'groupe_tp' => $_POST['groupe_tp']
         );
@@ -197,7 +213,7 @@ class TrombiController extends Controller {
         }
         $etudiant->setNom($form_etudiant['nom']);
         $etudiant->setPrenom($form_etudiant['prenom']);
-        $etudiant->setNom($form_etudiant['nom']);
+        $etudiant->setNoEtudiant($form_etudiant['no_etudiant']);
         $etudiant->addIdGroupe($new_td);
         $new_td->addIdEtudiant($etudiant);
         $new_tp->addIdEtudiant($etudiant);
@@ -273,6 +289,7 @@ class TrombiController extends Controller {
             'id' => $_POST['id'],
             'nom' => $_POST['nom'],
             'prenom' => $_POST['prenom'],
+            'no_etudiant' => $_POST['no_etudiant'],
             'groupe_td' => $_POST['groupe_td'],
             'groupe_tp' => $_POST['groupe_tp']
         );
@@ -285,7 +302,7 @@ class TrombiController extends Controller {
         $etudiant = new \Iut\TrombiBundle\Entity\Etudiant();
         $etudiant->setNom($form_etudiant['nom']);
         $etudiant->setPrenom($form_etudiant['prenom']);
-        $etudiant->setNom($form_etudiant['nom']);
+        $etudiant->setNoetudiant($form_etudiant['no_etudiant']);
         $etudiant->setUrlPhoto('img/photos/default.gif');
         $etudiant->addIdGroupe($new_td);
         $new_td->addIdEtudiant($etudiant);
@@ -308,35 +325,55 @@ class TrombiController extends Controller {
         $groupeRepository = $this->getGroupeRepo();
         $etudiantRepository = $this->getEtudiantRepo();
         $semestreRepository = $this->getSemestreRepo();
-        $list_groupe = $groupeRepository->findAll();
         $list_etudiant = $etudiantRepository->findAll();
         $list_semestre = $semestreRepository->findAll();
         foreach (array_reverse($list_semestre) as $semestre) {
-            $new_td = $groupeRepository->find(7);
-            $new_tp = $groupeRepository->findBy(
-                    array('idPere' => $new_td));
+            $list_groupe = $groupeRepository->findBy(array(
+                'idSemestre' => $semestre
+            ));
+            if ($semestre->getId() == 4) {
+                $new_td = $groupeRepository->findOneBy(array(
+                    'idSemestre' => null
+                ));
+                $nextSem = $semestre;
+            } else {
+                $new_td = $groupeRepository->findBy(array(
+                    'idSemestre' => $nextSem
+                ));
+                $new_tp = $groupeRepository->findBy(array(
+                    'idPere' => $new_td
+                ));
+                $nextSem = $semestre;
+            }
             foreach ($list_etudiant as $etudiant) {
-                foreach ($etudiant->getIdGroupe() as $idgroupe) {
-                    foreach ($list_groupe as $groupe) {
-                        if ($idgroupe->getId() == $groupe->getId()) {
-                            if ($groupe->getIdPere() == null) {
-                                $groupe->removeIdEtudiant($etudiant);
-                                $etudiant->removeIdGroupe($groupe);
+                foreach ($list_groupe as $groupe) {
+                    $etu_idGroupe = $etudiant->getIdGroupe();
+                    if ($etu_idGroupe->contains($groupe)) {
+                        if ($groupe->getIdPere() == null) {
+                            $groupe->removeIdEtudiant($etudiant);
+                            $etudiant->removeIdGroupe($groupe);
+                            if ($semestre->getId() == 4) {
                                 $etudiant->addIdGroupe($new_td);
                                 $new_td->addIdEtudiant($etudiant);
-                                $em->persist($etudiant);
                                 $em->persist($new_td);
-                                $em->persist($groupe);
-                                $em->flush();
                             } else {
+                                $etudiant->addIdGroupe($new_td[0]);
+                                $new_td[0]->addIdEtudiant($etudiant);
+                                $em->persist($new_td[0]);
+                            }
+                            $em->persist($etudiant);
+                            $em->persist($groupe);
+                            $em->flush();
+                        } else {
+                            $etudiant->removeIdGroupe($groupe);
+                            $groupe->removeIdEtudiant($etudiant);
+                            if (isset($new_tp)) {
                                 $etudiant->addIdGroupe($new_tp[0]);
                                 $new_tp[0]->addIdEtudiant($etudiant);
-                                $etudiant->removeIdGroupe($groupe);
-                                $groupe->removeIdEtudiant($etudiant);
-                                $em->persist($etudiant);
                                 $em->persist($new_tp[0]);
-                                $em->flush();
                             }
+                            $em->persist($etudiant);
+                            $em->flush();
                         }
                     }
                 }
