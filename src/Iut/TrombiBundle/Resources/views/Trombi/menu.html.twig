@@ -1,3 +1,9 @@
+<form action="{{ path('search') }}" method="POST">
+    <div class="form-group">
+        <input type="Text" name="recherche" class="form-control" placeholder="Rechercher un étudiant">
+    </div>
+    {#<input type="submit" class="btn btn-default">#}
+</form>
 <div class="panel-group" id="1a" role="tablist" aria-multiselectable="true">
     {% for semestre in les_semestres %} 
         <div class="panel panel-default">

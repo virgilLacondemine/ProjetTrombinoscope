@@ -134,6 +134,25 @@ class TrombiController extends Controller {
 
         return $this->render('IutTrombiBundle:Trombi:ajoutEtuGroupe.html.twig', $array);
     }
+    
+    /**
+     * @Route("/search", name="search")
+     */
+    public function searchStudentAction(){
+        $search = $_POST['recherche'];
+        $etudiants = array();
+        $etudiants += $this->getEtudiantRepo()->findBy(array(
+            'nom' => $search
+        ));
+        $etudiants += $this->getEtudiantRepo()->findBy(array(
+            'prenom' => $search
+        ));
+        $array = array(
+            'etudiants' => $etudiants,
+            'groupes' => $this->getGroupeRepo()->findAll()
+        );
+        return $this->render('IutTrombiBundle:Trombi:searchRender.html.twig', $array);
+    }
 
     /**
      * 
