@@ -2,7 +2,6 @@
     <div class="form-group">
         <input type="Text" name="recherche" class="form-control" placeholder="Rechercher un étudiant">
     </div>
-    {#<input type="submit" class="btn btn-default">#}
 </form>
 <div class="panel-group" id="1a" role="tablist" aria-multiselectable="true">
     {% for semestre in les_semestres %} 
@@ -55,10 +54,10 @@
             <div class="panel-body">
                 <ul class="nav nav-pills nav-stacked">
                     <li role="ajoutEtudiant"><a data-toggle="modal" data-target="#addModal" >Ajouter un étudiant</a></li>               
-                    <li role="ajoutEtudiant"><a data-toggle="modal" data-target="#addAllModal">Ajouter des etudiants</a></li>
-                    <li role="PasserSemestre"><a href="{{ path('nextSemestre')}}">Passer semestre suivant</a></li>
-                    <li role="modeEditionGroupe"><a href="{{ path('displayGroupe') }}">Editer groupe</a></li>
-                    <li role="ajoutEtuMulti"><a href="{{ path('displayMulti') }}">Ajouter des étudiants à groupe</a></li>
+                    <li role="ajoutEtudiant"><a data-toggle="modal" data-target="#addAllModal">Importer depuis liste Apogee</a></li>
+                    <li role="ajoutEtuMulti"><a href="{{ path('displayMulti') }}">Ajouter des étudiants à un groupe</a></li>
+                    <li role="modeEditionGroupe"><a href="{{ path('displayGroupe') }}">Editer les groupes</a></li>
+                    <li role="PasserSemestre"><a href="{{ path('nextSemestre')}}">Passer au semestre suivant</a></li>
                     <li role="voirArchive"><a href="{{ path('displayArchive') }}">Voir Archive</a></li>
                 </ul>
             </div>
@@ -130,14 +129,14 @@
                             {% endfor %}
                         </select>
                     </div>
-                        <br>
+                    <br>
                     <div class="form-group panel panel-default">
                         <label>L'image de respecter les condition suivantes :</label>
                         <label>Extension acceptées : JPG / JPEG / PNG</label><br>
                         <label>Dimension : 222*222 pixels</label><br>
                         <label>Taille maximale du fichier : 1Mo</label>
                     </div>
-                        <br>
+                    <br>
                     <div class="form-group">
                         <input type="submit" class="btn btn-primary">
                     </div>

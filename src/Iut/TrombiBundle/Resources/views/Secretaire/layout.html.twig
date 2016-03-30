@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="{{ asset('bootstrap/css/bootstrap.min.css') }}" type="text/css" />
+        <script type="text/javascript" src="{{ asset('jquery-2.2.0.min.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('bootstrap/js/bootstrap.min.js') }}"></script>
+
+        <!-- Ajout CSS -->
+        {% block css %} {%endblock%}
+
+        <title>{% block title %}TrombiPromo{%endblock%}</title>
+    </head>
+
+    <body>
+        <!-- Logo IUT Valence -->
+        <div class="row">
+
+            <div class="col-md-4">
+            </div>
+
+            <div class="col-md-4">
+                <img src="{{ asset('img/logoIUT.jpg') }}" alt="IUT VALENCE" class="img-responsive"/>
+            </div>
+
+            <div class="col-md-4">
+            </div>
+
+        </div>
+        <!-- Fin logo IUT Valence -->
+        {% block warning_modif %}
+            
+        {% endblock %}
+        <!-- Début Application -->
+        <div class="row">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-2">
+                {{ render(controller("IutTrombiBundle:Secretaire:menu")) }}
+            </div>
+
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="alert alert-info" role="alert" style="text-align: center; display: inline-block; width: 100%;">
+                        <strong>{% block group_title %}Groupe : {% endblock %}</strong>
+                        {% block action_button %}
+                            
+                        {% endblock %}
+                    </div>
+                </div>
+                {% block body %}
+
+                {% endblock %}
+            </div>
+
+            <div class="col-md-1">
+            </div>
+        </div>
+        <!-- Fin application -->
+    </body>
+</html>

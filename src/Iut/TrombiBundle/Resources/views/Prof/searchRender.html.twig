@@ -1,0 +1,30 @@
+{% extends "IutTrombiBundle:Prof:layout.html.twig" %}
+
+{% block title %}
+    {{ parent() }} - Résultat Recherche
+{% endblock %}
+
+{% block group_title %}
+    Résultat de la recherche
+{% endblock %}
+
+{% block body %}
+    {% if etudiants is empty %}
+        <h2>Aucun étudiants ne correspond à votre recherche</h2>
+    {% else %}
+        {% for etudiant in etudiants %}
+            <div class="col-md-3">
+                <div class="thumbnail">
+                    <img src="{{ asset(etudiant.urlPhoto) }}" alt="{{ etudiant.nom }} {{ etudiant.prenom }}" class="img-responsive"/>
+                    <div class="caption">
+                        <h4>{{ etudiant.nom }}</h4>
+                        <h6>{{ etudiant.prenom }}</h6>
+                        {% for groupe_etudiant in etudiant.idGroupe %}                      
+                            <p class="text-muted">{{ groupe_etudiant.libelle }}</p>
+                        {% endfor %} 
+                    </div>
+                </div>  
+            </div>
+        {% endfor %}
+    {% endif %}                                   
+{% endblock %}

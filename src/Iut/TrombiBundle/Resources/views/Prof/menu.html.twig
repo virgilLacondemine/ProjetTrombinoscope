@@ -1,0 +1,62 @@
+<form action="{{ path('profSearch') }}" method="POST">
+    <div class="form-group">
+        <input type="Text" name="recherche" class="form-control" placeholder="Rechercher un étudiant">
+    </div>
+    {#<input type="submit" class="btn btn-default">#}
+</form>
+<div class="panel-group" id="1a" role="tablist" aria-multiselectable="true">
+    {% for semestre in les_semestres %} 
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="heading_s{{ semestre.id }}">
+                <h4 class="panel-title">
+                    <a role="button" data-toggle="collapse" data-parent="#1a" href="#collapse_s{{ semestre.id }}" aria-expanded="true" aria-controls="collapse_s{{ semestre.id }}">S{{ semestre.id }}</a>
+                    <a href="{{ path('profDisplay',{'p_idGroupe':-1, 'p_idSemestre':semestre.id}) }}"><button class="btn" style="margin-left: 10px;">Voir</button></a>
+                </h4>
+            </div>
+            <div id="collapse_s{{ semestre.id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_s{{ semestre.id }}">
+                <div class="panel-body">
+                    <div class="panel-group" id="s{{ semestre.id }}" role="tablist" aria-multiselectable="true">
+                        {% for td in les_groupes %}
+                            {% if td.idSemestre.id == semestre.id and td.idPere == null %}
+                                <div class="panel panel-default">
+                                    <div class="panel-heading" role="tab" id="heading_s{{ semestre.id }}_{{td.libelle|lower}}">
+                                        <h4 class="panel-title">
+                                            <a role="button" data-toggle="collapse" data-parent="#s{{ semestre.id }}" href="#collapse_s{{ semestre.id }}_{{td.libelle|lower}}" aria-expanded="true" aria-controls="collapse_s{{ semestre.id }}_{{td.libelle|lower}}">{{td.libelle|upper}}</a>
+                                            <a href="{{ path('profDisplay',{'p_idGroupe':td.id, 'p_idSemestre':semestre.id}) }}"><button class="btn" style="margin-left: 10px;">Voir</button></a>
+                                        </h4>
+                                    </div>
+                                    <div id="collapse_s{{ semestre.id }}_{{td.libelle|lower}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_s{{ semestre.id }}_{{td.libelle|lower}}">
+                                        <div class="panel-body">
+                                            <ul class="nav nav-pills nav-stacked">
+                                                {% for tp in les_groupes %}
+                                                    {% if tp.idPere != null and tp.idPere.id == td.id %}
+                                                        <li role="1a_info_s1_{{td.libelle|lower}}"><a href="{{ path('profDisplay',{'p_idGroupe':tp.id, 'p_idSemestre':semestre.id}) }}" >{{ tp.libelle|upper }}</a></li>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    <div class="panel panel-default">
+        <div class="panel-heading" role="tab" id="heading_outils">
+            <h4 class="panel-title">
+                <a role="button" data-toggle="collapse" data-parent="#1a" href="#collapse_outils" aria-expanded="true" aria-controls="collapse_outils">Outils</a>
+            </h4>
+        </div>
+        <div id="collapse_outils" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_outils}">
+            <div class="panel-body">
+                <ul class="nav nav-pills nav-stacked">
+                    <li role="voirArchive"><a href="{{ path('profDisplayArchive') }}">Voir Archive</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

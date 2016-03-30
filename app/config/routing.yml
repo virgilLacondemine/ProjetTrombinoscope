@@ -1,7 +1,7 @@
 iut_trombi:
     resource: "@IutTrombiBundle/Controller/"
     type:     annotation
-    prefix:   /
+    prefix:   /iutTrombi/
 
 app:
     resource: "@AppBundle/Controller/"

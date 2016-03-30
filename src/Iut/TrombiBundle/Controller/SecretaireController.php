@@ -5,13 +5,13 @@ namespace Iut\TrombiBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
-class TrombiController extends Controller {
+class SecretaireController extends Controller {
 
     /**
-     * @Route("/", name="trombi_index")
+     * @Route("/secretaire", name="trombi_index")
      */
     public function indexAction() {
-        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+        return $this->render('IutTrombiBundle:Secretaire:index.html.twig');
     }
 
     /**
@@ -25,7 +25,7 @@ class TrombiController extends Controller {
         $semestreRepository = $this->getSemestreRepo();
         $listeSemestre = $semestreRepository->findAll();
         $listeGroupe = $groupeRespository->findAll();
-        return $this->render('IutTrombiBundle:Trombi:menu.html.twig', array(
+        return $this->render('IutTrombiBundle:Secretaire:menu.html.twig', array(
                     'les_semestres' => $listeSemestre,
                     'les_groupes' => $listeGroupe,
                     'promotions' => $this->getPromotionRepo()->findAll()
@@ -46,7 +46,7 @@ class TrombiController extends Controller {
      * @param type $p_idSemestre
      * @param type $p_modif
      * 
-     * @Route("/display/{p_idGroupe}/{p_idSemestre}/{p_modif}", name="display")
+     * @Route("/secretaire/display/{p_idGroupe}/{p_idSemestre}/{p_modif}", name="display")
      */
     public function displayAction($p_idGroupe, $p_idSemestre, $p_modif) {
         $semestreRepository = $this->getSemestreRepo();
@@ -66,7 +66,7 @@ class TrombiController extends Controller {
                     'p_idSemestre' => $p_idSemestre,
                     'p_modif' => $p_modif);
 
-                return $this->render('IutTrombiBundle:Trombi:trombi.html.twig', $array);
+                return $this->render('IutTrombiBundle:Secretaire:trombi.html.twig', $array);
 
             default :
                 $groupe = $groupeRepository->find($p_idGroupe);
@@ -81,13 +81,13 @@ class TrombiController extends Controller {
                     'p_idSemestre' => $p_idSemestre,
                     'p_modif' => $p_modif);
 
-                return $this->render('IutTrombiBundle:Trombi:trombi.html.twig', $array);
+                return $this->render('IutTrombiBundle:Secretaire:trombi.html.twig', $array);
         }
     }
 
     /**
      * 
-     * @Route("/displayGroupe", name="displayGroupe")
+     * @Route("/secretaire/displayGroupe", name="displayGroupe")
      */
     public function displayGroupeAction() {
         $doctrine = $this->getDoctrine();
@@ -99,11 +99,11 @@ class TrombiController extends Controller {
         $array = array('groupes' => $les_groupes,
             'semestres' => $les_semestres);
 
-        return $this->render('IutTrombiBundle:Trombi:editionGroupe.html.twig', $array);
+        return $this->render('IutTrombiBundle:Secretaire:editionGroupe.html.twig', $array);
     }
 
     /**
-     * @Route("/displayArchive", name="displayArchive")
+     * @Route("/secretaire/displayArchive", name="displayArchive")
      */
     public function displayArchiveAction() {
         $etudiants_archive = $this->getEtudiantRepo()->findAll();
@@ -112,11 +112,11 @@ class TrombiController extends Controller {
             'etudiants' => $etudiants_archive,
             'promotions' => $promotions
         );
-        return $this->render('IutTrombiBundle:Trombi:archive.html.twig', $array);
+        return $this->render('IutTrombiBundle:Secretaire:archive.html.twig', $array);
     }
 
     /**
-     * @Route("/displayMulti", name="displayMulti")
+     * @Route("/secretaire/displayMulti", name="displayMulti")
      */
     public function displayMultiAction() {
         $semestreRepository = $this->getSemestreRepo();
@@ -132,11 +132,11 @@ class TrombiController extends Controller {
             'semestres' => $les_semestres,
             'etudiants' => $les_etu);
 
-        return $this->render('IutTrombiBundle:Trombi:ajoutEtuGroupe.html.twig', $array);
+        return $this->render('IutTrombiBundle:Secretaire:ajoutEtuGroupe.html.twig', $array);
     }
 
     /**
-     * @Route("/search", name="search")
+     * @Route("/secretaire/search", name="search")
      */
     public function searchStudentAction() {
         $search = $_POST['recherche'];
@@ -151,12 +151,12 @@ class TrombiController extends Controller {
             'etudiants' => $etudiants,
             'groupes' => $this->getGroupeRepo()->findAll()
         );
-        return $this->render('IutTrombiBundle:Trombi:searchRender.html.twig', $array);
+        return $this->render('IutTrombiBundle:Secretaire:searchRender.html.twig', $array);
     }
 
     /**
      * 
-     * @Route("/import", name="import")
+     * @Route("/secretaire/import", name="import")
      */
     public function importEtudiants() {
         if ($_FILES['liste_etudiants']['error'] > 0) {
@@ -204,11 +204,11 @@ class TrombiController extends Controller {
         if (file_exists($target_file)) {
             unlink(realpath($target_file));
         }
-        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+        return $this->render('IutTrombiBundle:Secretaire:index.html.twig');
     }
 
     /**
-     * @Route("/addGrp", name="addGrp")
+     * @Route("/secretaire/addGrp", name="addGrp")
      */
     public function addGrpAction() {
 
@@ -236,7 +236,7 @@ class TrombiController extends Controller {
     }
 
     /**
-     * @Route("/modify", name="modify")
+     * @Route("/secretaire/modify", name="modify")
      */
     public function modifyAction() {
 
@@ -272,11 +272,11 @@ class TrombiController extends Controller {
         $em->persist($etudiant);
         $em->flush();
 
-        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+        return $this->render('IutTrombiBundle:Secretaire:index.html.twig');
     }
 
     /**
-     * @Route("/modifMultiEtuGrp", name="modifMultiEtuGrp")
+     * @Route("/secretaire/modifMultiEtuGrp", name="modifMultiEtuGrp")
      */
     public function modifMultiEtuGrpAction() {
 
@@ -307,7 +307,7 @@ class TrombiController extends Controller {
     }
 
     /**
-     * @Route("/modifGrp", name="modifGrp")
+     * @Route("/secretaire/modifGrp", name="modifGrp")
      */
     public function modifGrpAction() {
 
@@ -335,7 +335,7 @@ class TrombiController extends Controller {
     }
 
     /**
-     * @Route("/supp/{idEtudiant}", name="supp")
+     * @Route("/secretaire/supp/{idEtudiant}", name="supp")
      */
     public function suppressionEtudiantAction($idEtudiant) {
         $em = $this->getEM();
@@ -343,11 +343,11 @@ class TrombiController extends Controller {
         $etudiant = $etudiantRepository->find($idEtudiant);
         $em->remove($etudiant);
         $em->flush();
-        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+        return $this->render('IutTrombiBundle:Secretaire:index.html.twig');
     }
 
     /**
-     * @Route("/suppGrp/{idGroupe}", name="suppGrp")
+     * @Route("/secretaire/suppGrp/{idGroupe}", name="suppGrp")
      */
     public function suppressionGroupeAction($idGroupe) {
         $doctrine = $this->getDoctrine();
@@ -356,11 +356,11 @@ class TrombiController extends Controller {
         $groupe = $groupeRepository->find($idGroupe);
         $em->remove($groupe);
         $em->flush();
-        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+        return $this->render('IutTrombiBundle:Secretaire:index.html.twig');
     }
 
     /**
-     * @Route("/addStudent", name="addStudent")
+     * @Route("/secretaire/addStudent", name="addStudent")
      */
     public function addStudentAction() {
 
@@ -404,14 +404,14 @@ class TrombiController extends Controller {
             $em->persist($etudiant);
             $em->flush();
 
-            return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+            return $this->render('IutTrombiBundle:Secretaire:index.html.twig');
         } else {
-            return $this->render('IutTrombiBundle:Trombi:imgError.html.twig');
+            return $this->render('IutTrombiBundle:Secretaire:imgError.html.twig');
         }
     }
 
     /**
-     * @Route("/nextSemestre",name="nextSemestre")
+     * @Route("/secretaire/nextSemestre",name="nextSemestre")
      */
     public function changerSemestreAction() {
         $em = $this->getEM();
@@ -466,11 +466,11 @@ class TrombiController extends Controller {
                 }
             }
         }
-        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+        return $this->render('IutTrombiBundle:Secretaire:index.html.twig');
     }
 
     /**
-     * @Route("/exporterEmargementPDF/{p_idGroupe}/{p_idSemestre}",name="exporterEmargementPDF")
+     * @Route("/secretaire/exporterEmargementPDF/{p_idGroupe}/{p_idSemestre}",name="exporterEmargementPDF")
      */
     public function exporterEmargementPDFAction($p_idGroupe, $p_idSemestre) {
         $etudiantRepository = $this->getEtudiantRepo();
@@ -564,11 +564,11 @@ class TrombiController extends Controller {
         }
 
 
-        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+        return $this->render('IutTrombiBundle:Secretaire:index.html.twig');
     }
 
     /**
-     * @Route("/exporterTrombiPDF/{p_idGroupe}/{p_idSemestre}",name="exporterTrombiPDF")
+     * @Route("/secretaire/exporterTrombiPDF/{p_idGroupe}/{p_idSemestre}",name="exporterTrombiPDF")
      */
     public function exporterTrombiPDFAction($p_idGroupe, $p_idSemestre) {
         $etudiantRepository = $this->getEtudiantRepo();
@@ -655,7 +655,7 @@ class TrombiController extends Controller {
     }
 
     /**
-     * @Route("/exportExcelListe/{p_idGroupe}/{p_idSemestre}",name="exportExcelListe")
+     * @Route("/secretaire/exportExcelListe/{p_idGroupe}/{p_idSemestre}",name="exportExcelListe")
      * @param type $p_groupe
      * @param type $p_listeEtudiant
      * 
