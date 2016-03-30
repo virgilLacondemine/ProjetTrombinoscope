@@ -149,9 +149,31 @@
                                 </div>
 
 
+                                {% if td.idEtudiant is empty %}
                                 <div class="col-lg-2">
-                                    <a href="{{ path('suppGrp',{'idGroupe':td.id}) }}>"<span class="glyphicon glyphicon-remove" style="color:red"></span></a>
+                                    <a data-toggle="modal" data-target="#suppGrp{{td.id}}Modal"><span class="glyphicon glyphicon-remove" style="color:red"></span></a>
                                 </div>
+                                
+                                <div class="modal fade" id="suppGrp{{td.id}}Modal" tabindex="-1" role="dialog" aria-labelledby="modifGrpModalLabel">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                <h4 class="modal-title" id="addGrpModalLabel">Suppression d'un groupe</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="form-group">
+                                                    Supprimer le groupe {{ td.libelle }}
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <a href="{{ path('suppGrp',{'idGroupe':td.id}) }}" class="btn btn-primary">Valider</a>
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
                             {% endif %}
                         </div>
                         {% for tp in groupes %}
@@ -226,9 +248,31 @@
                                     </div>
 
 
-                                    <div class="col-lg-2">
-                                        <a href="{{ path('suppGrp',{'idGroupe':tp.id}) }}>"<span class="glyphicon glyphicon-remove" style="color:red"></span></a>
+                                    {% if tp.idEtudiant is empty %}
+                                <div class="col-lg-2">
+                                    <a data-toggle="modal" data-target="#suppGrp{{tp.id}}Modal"><span class="glyphicon glyphicon-remove" style="color:red"></span></a>
+                                </div>
+                                
+                                <div class="modal fade" id="suppGrp{{tp.id}}Modal" tabindex="-1" role="dialog" aria-labelledby="modifGrpModalLabel">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                                <h4 class="modal-title" id="addGrpModalLabel">Suppression d'un groupe</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="form-group">
+                                                    Supprimer le groupe {{ tp.libelle }}
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <a href="{{ path('suppGrp',{'idGroupe':tp.id}) }}" class="btn btn-primary">Valider</a>
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                                            </div>
+                                        </div>
                                     </div>
+                                </div>
+                                {% endif%}
                                 </div>
                             {% endif %}
                         {% endfor %}

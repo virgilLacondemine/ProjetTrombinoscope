@@ -262,19 +262,28 @@ class TrombiController extends Controller {
     public function modifMultiEtuGrpAction() {
 
         $form = array(
-            'groupe' => $_POST['groupe'],
+            'groupeTD' => $_POST['groupeTD'],
+            'groupeTP' => $_POST['groupeTP'],
             'etudiants' => $_POST['lesEtudiants'],
         );
 
         $em = $this->getEM();
         $etudiantRepository = $this->getEtudiantRepo();
         $groupeRepository = $this->getGroupeRepo();
-        $groupe = $groupeRepository->find($form['groupe']);
+        $groupeTD = $groupeRepository->find($form['groupeTD']);
+        $groupeTP = $groupeRepository->find($form['groupeTP']);
         foreach ($form['etudiants'] as $etudiant) {
             $unEtu = $etudiantRepository->find($etudiant);
-            $unEtu->addIdGroupe($groupe);
+            foreach ($unEtu->getIdGroupe() as $groupeE) {
+                $groupeE->removeIdEtudiant($unEtu);
+                $unEtu->removeIdGroupe($groupeE);
+            }
+            $unEtu = $etudiantRepository->find($etudiant);
+            $unEtu->addIdGroupe($groupeTD);
+            $unEtu->addIdGroupe($groupeTP);
             $em->persist($unEtu);
             $em->flush();
+            
         }
         return $this->render('IutTrombiBundle:Trombi:index.html.twig');
     }
