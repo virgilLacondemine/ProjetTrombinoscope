@@ -10,14 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="etudiant", indexes={@ORM\Index(name="promotion", columns={"promotion"})})
  * @ORM\Entity
  */
-class Etudiant
-{
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="noEtudiant", type="integer", nullable=false)
-     */
-    private $noetudiant;
+class Etudiant {
 
     /**
      * @var string
@@ -32,6 +25,13 @@ class Etudiant
      * @ORM\Column(name="prenom", type="string", length=20, nullable=false)
      */
     private $prenom;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="noEtudiant", type="integer", nullable=false)
+     */
+    private $noetudiant;
 
     /**
      * @var string
@@ -77,11 +77,9 @@ class Etudiant
     /**
      * Constructor
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->idGroupe = new \Doctrine\Common\Collections\ArrayCollection();
     }
-
 
     /**
      * Set noetudiant
@@ -89,8 +87,7 @@ class Etudiant
      * @param integer $noetudiant
      * @return Etudiant
      */
-    public function setNoetudiant($noetudiant)
-    {
+    public function setNoetudiant($noetudiant) {
         $this->noetudiant = $noetudiant;
 
         return $this;
@@ -101,8 +98,7 @@ class Etudiant
      *
      * @return integer 
      */
-    public function getNoetudiant()
-    {
+    public function getNoetudiant() {
         return $this->noetudiant;
     }
 
@@ -112,8 +108,7 @@ class Etudiant
      * @param string $nom
      * @return Etudiant
      */
-    public function setNom($nom)
-    {
+    public function setNom($nom) {
         $this->nom = $nom;
 
         return $this;
@@ -124,8 +119,7 @@ class Etudiant
      *
      * @return string 
      */
-    public function getNom()
-    {
+    public function getNom() {
         return $this->nom;
     }
 
@@ -135,8 +129,7 @@ class Etudiant
      * @param string $prenom
      * @return Etudiant
      */
-    public function setPrenom($prenom)
-    {
+    public function setPrenom($prenom) {
         $this->prenom = $prenom;
 
         return $this;
@@ -147,8 +140,7 @@ class Etudiant
      *
      * @return string 
      */
-    public function getPrenom()
-    {
+    public function getPrenom() {
         return $this->prenom;
     }
 
@@ -158,8 +150,7 @@ class Etudiant
      * @param string $urlPhoto
      * @return Etudiant
      */
-    public function setUrlPhoto($urlPhoto)
-    {
+    public function setUrlPhoto($urlPhoto) {
         $this->urlPhoto = $urlPhoto;
 
         return $this;
@@ -170,8 +161,7 @@ class Etudiant
      *
      * @return string 
      */
-    public function getUrlPhoto()
-    {
+    public function getUrlPhoto() {
         return $this->urlPhoto;
     }
 
@@ -180,8 +170,7 @@ class Etudiant
      *
      * @return integer 
      */
-    public function getId()
-    {
+    public function getId() {
         return $this->id;
     }
 
@@ -191,8 +180,7 @@ class Etudiant
      * @param \Iut\TrombiBundle\Entity\Promotion $promotion
      * @return Etudiant
      */
-    public function setPromotion(\Iut\TrombiBundle\Entity\Promotion $promotion = null)
-    {
+    public function setPromotion(\Iut\TrombiBundle\Entity\Promotion $promotion = null) {
         $this->promotion = $promotion;
 
         return $this;
@@ -203,8 +191,7 @@ class Etudiant
      *
      * @return \Iut\TrombiBundle\Entity\Promotion 
      */
-    public function getPromotion()
-    {
+    public function getPromotion() {
         return $this->promotion;
     }
 
@@ -214,8 +201,7 @@ class Etudiant
      * @param \Iut\TrombiBundle\Entity\Groupe $idGroupe
      * @return Etudiant
      */
-    public function addIdGroupe(\Iut\TrombiBundle\Entity\Groupe $idGroupe)
-    {
+    public function addIdGroupe(\Iut\TrombiBundle\Entity\Groupe $idGroupe) {
         $this->idGroupe[] = $idGroupe;
 
         return $this;
@@ -226,8 +212,7 @@ class Etudiant
      *
      * @param \Iut\TrombiBundle\Entity\Groupe $idGroupe
      */
-    public function removeIdGroupe(\Iut\TrombiBundle\Entity\Groupe $idGroupe)
-    {
+    public function removeIdGroupe(\Iut\TrombiBundle\Entity\Groupe $idGroupe) {
         $this->idGroupe->removeElement($idGroupe);
     }
 
@@ -236,8 +221,8 @@ class Etudiant
      *
      * @return \Doctrine\Common\Collections\Collection 
      */
-    public function getIdGroupe()
-    {
+    public function getIdGroupe() {
         return $this->idGroupe;
     }
+
 }

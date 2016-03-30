@@ -114,27 +114,26 @@ class TrombiController extends Controller {
         return $this->render('IutTrombiBundle:Trombi:archive.html.twig', $array);
     }
 
-    
-        /**
+    /**
      * @Route("/displayMulti", name="displayMulti")
      */
     public function displayMultiAction() {
         $semestreRepository = $this->getSemestreRepo();
         $groupeRepository = $this->getGroupeRepo();
         $etudiantRepository = $this->getEtudiantRepo();
-        
+
         $les_semestres = $semestreRepository->findAll();
         $les_groupes = $groupeRepository->findAll();
         $les_etu = $etudiantRepository->findAll();
-        
-         $array = array(
-             'groupes' => $les_groupes,
-             'semestres' => $les_semestres,
-             'etudiants' => $les_etu);
-         
+
+        $array = array(
+            'groupes' => $les_groupes,
+            'semestres' => $les_semestres,
+            'etudiants' => $les_etu);
+
         return $this->render('IutTrombiBundle:Trombi:ajoutEtuGroupe.html.twig', $array);
     }
-    
+
     /**
      * 
      * @Route("/import", name="import")
@@ -255,8 +254,8 @@ class TrombiController extends Controller {
 
         return $this->render('IutTrombiBundle:Trombi:index.html.twig');
     }
-    
-           /**
+
+    /**
      * @Route("/modifMultiEtuGrp", name="modifMultiEtuGrp")
      */
     public function modifMultiEtuGrpAction() {
@@ -343,7 +342,8 @@ class TrombiController extends Controller {
             'prenom' => $_POST['prenom'],
             'no_etudiant' => $_POST['no_etudiant'],
             'groupe_td' => $_POST['groupe_td'],
-            'groupe_tp' => $_POST['groupe_tp']
+            'groupe_tp' => $_POST['groupe_tp'],
+            'promotion' => $_POST['promotion']
         );
 
         $em = $this->getDoctrine()->getManager();
@@ -356,6 +356,7 @@ class TrombiController extends Controller {
         $etudiant->setPrenom($form_etudiant['prenom']);
         $etudiant->setNoetudiant($form_etudiant['no_etudiant']);
         $etudiant->setUrlPhoto('img/photos/default.gif');
+        $etudiant->setPromotion($this->getPromotionRepo()->find($form_etudiant['promotion']));
         $etudiant->addIdGroupe($new_td);
         $new_td->addIdEtudiant($etudiant);
         $new_tp->addIdEtudiant($etudiant);
@@ -418,7 +419,7 @@ class TrombiController extends Controller {
                                 //$em->persist($new_tp[0]);
                             }
                             //$em->persist($etudiant);
-                           // $em->persist($groupe);
+                            // $em->persist($groupe);
                             $em->flush();
                         }
                     }
@@ -429,9 +430,9 @@ class TrombiController extends Controller {
     }
 
     /**
-     * @Route("/exporterPDF/{p_idGroupe}/{p_idSemestre}",name="exporterPDF")
+     * @Route("/exporterEmargementPDF/{p_idGroupe}/{p_idSemestre}",name="exporterEmargementPDF")
      */
-    public function exporterPDFAction($p_idGroupe, $p_idSemestre) {
+    public function exporterEmargementPDFAction($p_idGroupe, $p_idSemestre) {
         $etudiantRepository = $this->getEtudiantRepo();
         $groupeRepository = $this->getGroupeRepo();
         $semestreRepository = $this->getSemestreRepo();
@@ -524,6 +525,93 @@ class TrombiController extends Controller {
 
 
         return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+    }
+
+    /**
+     * @Route("/exporterTrombiPDF/{p_idGroupe}/{p_idSemestre}",name="exporterTrombiPDF")
+     */
+    public function exporterTrombiPDFAction($p_idGroupe, $p_idSemestre) {
+        $etudiantRepository = $this->getEtudiantRepo();
+        $groupeRepository = $this->getGroupeRepo();
+        $semestreRepository = $this->getSemestreRepo();
+        $etudiants = $etudiantRepository->findAll();
+
+        $pdf = new \FPDF();
+        $pdf->AddPage();
+        $pdf->SetFont('arial', '', 10);
+        $x = 22;
+        $y = 35;
+        if ($p_idGroupe == -1) {
+            $pdf->Cell(160, 7, 'Trombinoscope - ' . $semestreRepository->find($p_idSemestre)->getLibelle());
+        } else {
+            $pdf->Cell(160, 7, 'Trombinoscope - ' . $semestreRepository->find($p_idSemestre)->getLibelle() . ' - Groupe ' . $groupeRepository->find($p_idGroupe)->getLibelle());
+        }
+        $pdf->Ln();
+        $pdf->Ln();
+        if ($p_idGroupe == -1) {
+            $semestre = $semestreRepository->find($p_idSemestre);
+            $groupes = $groupeRepository->findBy(array(
+                'idSemestre' => $semestre
+            ));
+            $liste_etudiant = $this->trieEtudiantSemestre($groupes, $etudiants);
+            foreach ($liste_etudiant as $etudiant) {
+                foreach ($etudiant->getIdGroupe() as $groupe_etudiant) {
+                    if ($groupe_etudiant->getIdPere() == null) {
+                        $td = $groupe_etudiant;
+                    } else {
+                        $tp = $groupe_etudiant;
+                    }
+                }
+                $pdf->Image($this->getWebDir() . $etudiant->getUrlPhoto(), $x, $y, 30, 30);
+                $pdf->Text($x, $y + 35, $etudiant->getNom());
+                $pdf->Text($x, $y + 40, $etudiant->getPrenom());
+                $pdf->Text($x, $y + 45, $td->getLibelle());
+                $pdf->Text($x + 23, $y + 45, $tp->getLibelle());
+                $pdf->Rect($x - 1, $y - 1, 32, 47);
+                if ($x >= 157) {
+                    $x = 22;
+                    if ($y >= 235) {
+                        $pdf->AddPage();
+                        $pdf->Cell(160, 7, 'Trombinoscope - ' . $semestreRepository->find($p_idSemestre)->getLibelle());
+                        $y = -10;
+                    }
+                    $y += 50;
+                } else {
+                    $x += 45;
+                }
+            }
+            $pdf->Output('D', 'feuille_emargement_' . $semestre->getLibelle() . '.pdf', true);
+        } else {
+            $groupe = $groupeRepository->find($p_idGroupe);
+            $liste_etudiant = $this->trieEtudiantGroupe($groupe, $etudiants);
+            foreach ($liste_etudiant as $etudiant) {
+                foreach ($etudiant->getIdGroupe() as $groupe_etudiant) {
+                    if ($groupe_etudiant->getIdPere() == null) {
+                        $td = $groupe_etudiant;
+                    } else {
+                        $tp = $groupe_etudiant;
+                    }
+                }
+                $pdf->Image($this->getWebDir() . $etudiant->getUrlPhoto(), $x, $y, 30, 30);
+                $pdf->Text($x, $y + 35, $etudiant->getNom());
+                $pdf->Text($x, $y + 40, $etudiant->getPrenom());
+                $pdf->Text($x, $y + 45, $td->getLibelle());
+                $pdf->Text($x + 23, $y + 45, $tp->getLibelle());
+                $pdf->Rect($x - 1, $y - 1, 32, 47);
+                if ($x >= 157) {
+                    $x = 22;
+                    if ($y >= 235) {
+                        $pdf->AddPage();
+                        $pdf->Cell(160, 7, 'Trombinoscope - ' . $semestreRepository->find($p_idSemestre)->getLibelle() . ' - Groupe ' . $groupeRepository->find($p_idGroupe)->getLibelle());
+                        $y = -10;
+                    }
+                    $y += 50;
+                } else {
+                    $x += 45;
+                }
+            }
+            $pdf->Output('D', 'feuille_emargement_' . $groupe->getLibelle() . '.pdf', true);
+        }
     }
 
     /**
@@ -636,6 +724,14 @@ class TrombiController extends Controller {
             $lesEtudiants = null;
         }
         return $lesEtudiants;
+    }
+
+    /**
+     * Methode qui retourne le répertoire web du bundle.
+     * @return type
+     */
+    public function getWebDir() {
+        return $this->get('kernel')->getRootDir() . '/../web/';
     }
 
 }
