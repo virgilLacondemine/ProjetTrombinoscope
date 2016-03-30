@@ -134,11 +134,11 @@ class TrombiController extends Controller {
 
         return $this->render('IutTrombiBundle:Trombi:ajoutEtuGroupe.html.twig', $array);
     }
-    
+
     /**
      * @Route("/search", name="search")
      */
-    public function searchStudentAction(){
+    public function searchStudentAction() {
         $search = $_POST['recherche'];
         $etudiants = array();
         $etudiants += $this->getEtudiantRepo()->findBy(array(
@@ -302,7 +302,6 @@ class TrombiController extends Controller {
             $unEtu->addIdGroupe($groupeTP);
             $em->persist($unEtu);
             $em->flush();
-            
         }
         return $this->redirectToRoute('displayMulti');
     }
@@ -375,28 +374,40 @@ class TrombiController extends Controller {
             'promotion' => $_POST['promotion']
         );
 
-        $em = $this->getDoctrine()->getManager();
-        $etudiantRepository = $em->getRepository('IutTrombiBundle:Etudiant');
-        $groupeRepository = $em->getRepository('IutTrombiBundle:Groupe');
-        $new_td = $groupeRepository->find($form_etudiant['groupe_td']);
-        $new_tp = $groupeRepository->find($form_etudiant['groupe_tp']);
-        $etudiant = new \Iut\TrombiBundle\Entity\Etudiant();
-        $etudiant->setNom($form_etudiant['nom']);
-        $etudiant->setPrenom($form_etudiant['prenom']);
-        $etudiant->setNoetudiant($form_etudiant['no_etudiant']);
-        $etudiant->setUrlPhoto('img/photos/default.gif');
-        $etudiant->setPromotion($this->getPromotionRepo()->find($form_etudiant['promotion']));
-        $etudiant->addIdGroupe($new_td);
-        $new_td->addIdEtudiant($etudiant);
-        $new_tp->addIdEtudiant($etudiant);
-        $em->persist($etudiant);
-        $em->persist($new_td);
-        $em->persist($new_tp);
-        $etudiant->addIdGroupe($new_tp);
-        $em->persist($etudiant);
-        $em->flush();
+        $img = array(
+            'nom' => $_FILES['img']['name'],
+            'type' => $_FILES['img']['type'],
+            'taille' => $_FILES['img']['size'],
+            'dimensions' => getimagesize($_FILES['img']['tmp_name']),
+            'location_tmp' => $_FILES['img']['tmp_name']
+        );
 
-        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+        if ($this->checkImg($img)) {
+            $urlPhoto = $this->uploadImg($form_etudiant['nom'], $form_etudiant['prenom'], $img);
+            $em = $this->getDoctrine()->getManager();
+            $groupeRepository = $em->getRepository('IutTrombiBundle:Groupe');
+            $new_td = $groupeRepository->find($form_etudiant['groupe_td']);
+            $new_tp = $groupeRepository->find($form_etudiant['groupe_tp']);
+            $etudiant = new \Iut\TrombiBundle\Entity\Etudiant();
+            $etudiant->setNom($form_etudiant['nom']);
+            $etudiant->setPrenom($form_etudiant['prenom']);
+            $etudiant->setNoetudiant($form_etudiant['no_etudiant']);
+            $etudiant->setUrlPhoto($urlPhoto);
+            $etudiant->setPromotion($this->getPromotionRepo()->find($form_etudiant['promotion']));
+            $etudiant->addIdGroupe($new_td);
+            $new_td->addIdEtudiant($etudiant);
+            $new_tp->addIdEtudiant($etudiant);
+            $em->persist($etudiant);
+            $em->persist($new_td);
+            $em->persist($new_tp);
+            $etudiant->addIdGroupe($new_tp);
+            $em->persist($etudiant);
+            $em->flush();
+
+            return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+        } else {
+            return $this->render('IutTrombiBundle:Trombi:imgError.html.twig');
+        }
     }
 
     /**
@@ -761,6 +772,40 @@ class TrombiController extends Controller {
      */
     public function getWebDir() {
         return $this->get('kernel')->getRootDir() . '/../web/';
+    }
+
+    public function getPhotosDir() {
+        return $this->getWebDir() . 'img/photos/';
+    }
+
+    /**
+     * Upload l'image.
+     */
+    public function uploadImg($nom, $prenom, $img) {
+        $extension = strtolower(strrchr($img['nom'], '.'));
+        $target_file = $this->getPhotosDir() . $nom . '_' . $prenom . $extension;
+        $tranfert = move_uploaded_file($img['location_tmp'], $target_file);
+        if ($tranfert) {
+            return 'img/photos/' . $nom . '_' . $prenom . $extension;
+        } else {
+            return 'img/photos/default.gif';
+        }
+    }
+
+    /**
+     * Vérifie si l'image correspond au critère d'upload.
+     * @param type $img
+     * @return boolean
+     */
+    public function checkImg($img) {
+        if ($img['type'] == 'image/jpg' || $img['type'] == 'image/jpeg' || $img['type'] == 'image/png') {
+            if ($img['taille'] < 1048576) {
+                if ($img['dimensions'][0] == 222 && $img['dimensions'][1] == 222) {
+                    return TRUE;
+                }
+            }
+        }
+        return FALSE;
     }
 
 }
