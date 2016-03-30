@@ -27,7 +27,8 @@ class TrombiController extends Controller {
         $listeGroupe = $groupeRespository->findAll();
         return $this->render('IutTrombiBundle:Trombi:menu.html.twig', array(
                     'les_semestres' => $listeSemestre,
-                    'les_groupes' => $listeGroupe
+                    'les_groupes' => $listeGroupe,
+                    'promotions' => $this->getPromotionRepo()->findAll()
         ));
     }
 
