@@ -1,0 +1,47 @@
+{% extends "IutTrombiBundle::layout.html.twig" %}
+
+{% block title %}
+    {{ parent() }} - Ajouter des etudiants à un groupe
+{% endblock %}
+
+{% block group_title %}
+    Ajout
+{% endblock %}
+
+{% block body %}
+    <form action="{{path('modifMultiEtuGrp')}}" method="post">
+        <div class="row">
+            <div class="col-lg-1">
+                <label for="groupe" class="form-label"> Groupe : </label>
+            </div>
+            <div class="col-lg-2">
+                <select class="form-control" id="groupe" name="groupe">
+                     {% for semestre in semestres %}
+                        <option value='#' disabled> {{semestre.libelle}} : </option>
+                        {% for td in groupes %}
+                            {% if td.idSemestre != null and td.idSemestre == semestre %}
+                                    {% if td.idPere == null %}
+                                        <option value="{{ td.id }}">{{ td.libelle }}</option>
+                                    {% for tp in groupes %}
+                                        {% if tp.idPere == td %}
+                                            <option value="{{ tp.id }}"> &nbsp {{ tp.libelle }}</option>
+                                        {% endif %}
+                                    {% endfor%}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+                <div class="row">
+                <label class="form-label">Selectionner les étudiants à déplacer</label>
+        {% for etudiant in etudiants %}
+            <br><label class ="form-label" for="{{etudiant.id}}">{{etudiant.nom}} {{etudiant.prenom}}</label>
+            <input type="checkbox" name="lesEtudiants[]" id="{{etudiant.id}}" value="{{etudiant.id}}">
+        {% endfor%}
+                </div>
+                <input type="submit" class="btn btn-primary">
+            
+    </form>
+{% endblock %}

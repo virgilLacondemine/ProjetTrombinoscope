@@ -114,6 +114,27 @@ class TrombiController extends Controller {
         return $this->render('IutTrombiBundle:Trombi:archive.html.twig', $array);
     }
 
+    
+        /**
+     * @Route("/displayMulti", name="displayMulti")
+     */
+    public function displayMultiAction() {
+        $semestreRepository = $this->getSemestreRepo();
+        $groupeRepository = $this->getGroupeRepo();
+        $etudiantRepository = $this->getEtudiantRepo();
+        
+        $les_semestres = $semestreRepository->findAll();
+        $les_groupes = $groupeRepository->findAll();
+        $les_etu = $etudiantRepository->findAll();
+        
+         $array = array(
+             'groupes' => $les_groupes,
+             'semestres' => $les_semestres,
+             'etudiants' => $les_etu);
+         
+        return $this->render('IutTrombiBundle:Trombi:ajoutEtuGroupe.html.twig', $array);
+    }
+    
     /**
      * 
      * @Route("/import", name="import")
@@ -232,6 +253,29 @@ class TrombiController extends Controller {
         $em->persist($etudiant);
         $em->flush();
 
+        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+    }
+    
+           /**
+     * @Route("/modifMultiEtuGrp", name="modifMultiEtuGrp")
+     */
+    public function modifMultiEtuGrpAction() {
+
+        $form = array(
+            'groupe' => $_POST['groupe'],
+            'etudiants' => $_POST['lesEtudiants'],
+        );
+
+        $em = $this->getEM();
+        $etudiantRepository = $this->getEtudiantRepo();
+        $groupeRepository = $this->getGroupeRepo();
+        $groupe = $groupeRepository->find($form['groupe']);
+        foreach ($form['etudiants'] as $etudiant) {
+            $unEtu = $etudiantRepository->find($etudiant);
+            $unEtu->addIdGroupe($groupe);
+            $em->persist($unEtu);
+            $em->flush();
+        }
         return $this->render('IutTrombiBundle:Trombi:index.html.twig');
     }
 
