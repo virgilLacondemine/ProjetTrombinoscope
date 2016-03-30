@@ -16,7 +16,7 @@
             </div>
             <div class="col-lg-2">
                 <select class="form-control" id="groupeTD" name="groupeTD">
-                     {% for semestre in semestres %}
+                    {% for semestre in semestres %}
                         <option value='#' disabled> {{semestre.libelle}} : </option>
                         {% for td in groupes %}
                             {% if td.idSemestre != null and td.idSemestre == semestre %}
@@ -28,18 +28,18 @@
                     {% endfor %}
                 </select>
             </div>
-                
+
             <div class="col-lg-offset-1 col-lg-2">
                 <label for="groupeTP" class="form-label">Nouveau TP : </label>
             </div>
             <div class="col-lg-2">
                 <select class="form-control" id="groupeTP" name="groupeTP">
-                     {% for semestre in semestres %}
+                    {% for semestre in semestres %}
                         <option value='#' disabled> {{semestre.libelle}} : </option>
                         {% for td in groupes %}
                             {% if td.idSemestre != null and td.idSemestre == semestre %}
-                                    {% if td.idPere == null %}
-                                        <option value="{{ td.id }}" disabled>{{ td.libelle }}</option>
+                                {% if td.idPere == null %}
+                                    <option value="{{ td.id }}" disabled>{{ td.libelle }}</option>
                                     {% for tp in groupes %}
                                         {% if tp.idPere == td %}
                                             <option value="{{ tp.id }}"> &nbsp {{ tp.libelle }}</option>
@@ -51,15 +51,48 @@
                     {% endfor %}
                 </select>
             </div>
+            <input type="submit" class="btn btn-primary">
         </div>
-                <div class="row">
-                <label class="form-label">Selectionner les étudiants à déplacer</label>
-        {% for etudiant in etudiants %}
-            <br><label class ="form-label" for="{{etudiant.id}}">{{etudiant.nom}} {{etudiant.prenom}} {{etudiant.idGroupe[0].libelle}} {{etudiant.idGroupe[1].libelle}}</label>
-            <input type="checkbox" name="lesEtudiants[]" id="{{etudiant.id}}" value="{{etudiant.id}}">
-        {% endfor%}
+        <br>
+        <div class="row">
+            <label class="form-label">Selectionner les étudiants à déplacer</label>
+            <br>
+            {% for semestre in semestres %}
+                <div class="col-md-3 panel panel-default">
+                    <p>{{semestre.libelle}}</p>
+                    {% for td in groupes %}
+                        {% if td.idSemestre == semestre and td.idPere == null %}
+                            <div class="col-md-offset-1 panel panel-default">
+                                <p>{{td.libelle}}</p>
+                                {% for tp in groupes %}
+                                    {% if tp.idPere == td %}
+                                        <div class="col-md-offset-1 panel panel-default">
+                                            <p>{{tp.libelle}}</p>
+                                            {% for etudiant in etudiants %}
+                                                {% for groupeEtudiant in etudiant.idGroupe %}
+                                                    {% if groupeEtudiant == tp %}
+                                                        <div class="col-md-offset-1">
+                                                            <label>
+                                                                <input type="checkbox" name="lesEtudiants[]" id="{{etudiant.id}}" value="{{etudiant.id}}">{{etudiant.nom}} {{etudiant.prenom}}</input>
+                                                            </label>
+                                                            <br>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %} 
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
                 </div>
-                <input type="submit" class="btn btn-primary">
-            
+            {% endfor %}
+
+        </div>
     </form>
 {% endblock %}
+{#{% for etudiant in etudiants %}
+    <br><label class ="form-label" for="{{etudiant.id}}">{{etudiant.nom}} {{etudiant.prenom}} </label>
+    <input type="checkbox" name="lesEtudiants[]" id="{{etudiant.id}}" value="{{etudiant.id}}">
+{% endfor%}#}

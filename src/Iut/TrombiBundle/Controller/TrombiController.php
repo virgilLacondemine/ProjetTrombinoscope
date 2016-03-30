@@ -285,7 +285,7 @@ class TrombiController extends Controller {
             $em->flush();
             
         }
-        return $this->render('IutTrombiBundle:Trombi:index.html.twig');
+        return $this->redirectToRoute('displayMulti');
     }
 
     /**
@@ -590,7 +590,7 @@ class TrombiController extends Controller {
                     $x += 45;
                 }
             }
-            $pdf->Output('D', 'feuille_emargement_' . $semestre->getLibelle() . '.pdf', true);
+            $pdf->Output('D', 'trombinoscope_' . $semestre->getLibelle() . '.pdf', true);
         } else {
             $groupe = $groupeRepository->find($p_idGroupe);
             $liste_etudiant = $this->trieEtudiantGroupe($groupe, $etudiants);
@@ -620,7 +620,7 @@ class TrombiController extends Controller {
                     $x += 45;
                 }
             }
-            $pdf->Output('D', 'feuille_emargement_' . $groupe->getLibelle() . '.pdf', true);
+            $pdf->Output('D', 'trombinoscope_' . $groupe->getLibelle() . '.pdf', true);
         }
     }
 
