@@ -8,6 +8,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 class SecretaireController extends Controller {
 
     /**
+     * Affiche la page d'accueil
      * @Route("/secretaire", name="trombi_index")
      */
     public function indexAction() {
@@ -16,18 +17,13 @@ class SecretaireController extends Controller {
 
     /**
      * Methode de génération du menu.
-     * 
+     *
      * Genere le menu de l'application en fonction des groupes TD/TP
-     * de l'année courante.
      */
     public function menuAction() {
-        $groupeRespository = $this->getGroupeRepo();
-        $semestreRepository = $this->getSemestreRepo();
-        $listeSemestre = $semestreRepository->findAll();
-        $listeGroupe = $groupeRespository->findAll();
         return $this->render('IutTrombiBundle:Secretaire:menu.html.twig', array(
-                    'les_semestres' => $listeSemestre,
-                    'les_groupes' => $listeGroupe,
+                    'les_semestres' => $this->getSemestreRepo()->findAll(),
+                    'les_groupes' => $this->getGroupeRepo()->findAll(),
                     'promotions' => $this->getPromotionRepo()->findAll()
         ));
     }
@@ -52,6 +48,7 @@ class SecretaireController extends Controller {
         $semestreRepository = $this->getSemestreRepo();
         $groupeRepository = $this->getGroupeRepo();
         $etudiantRepository = $this->getEtudiantRepo();
+        //On regarde si on doit afficher un semstre ou un groupe TD/TP
         switch ($p_idGroupe) {
             case -1:
                 $listeEtudiant = $etudiantRepository->findAll();
@@ -86,75 +83,81 @@ class SecretaireController extends Controller {
     }
 
     /**
+     * Affichage des groupes pour l'édition
      * 
      * @Route("/secretaire/displayGroupe", name="displayGroupe")
      */
     public function displayGroupeAction() {
-        $doctrine = $this->getDoctrine();
-        $em = $doctrine->getManager();
-        $semestreRepository = $em->getRepository('IutTrombiBundle:Semestre');
-        $groupeRepository = $em->getRepository('IutTrombiBundle:Groupe');
-        $les_semestres = $semestreRepository->findAll();
-        $les_groupes = $groupeRepository->findAll();
-        $array = array('groupes' => $les_groupes,
-            'semestres' => $les_semestres);
+
+        $array = array(
+            'groupes' => $this->getGroupeRepo()->findAll(),
+            'semestres' => $this->getSemestreRepo()->findAll()
+        );
 
         return $this->render('IutTrombiBundle:Secretaire:editionGroupe.html.twig', $array);
     }
 
     /**
+     * Affichage de l'archive en fonction des promotions.
+     * 
      * @Route("/secretaire/displayArchive", name="displayArchive")
      */
     public function displayArchiveAction() {
-        $etudiants_archive = $this->getEtudiantRepo()->findAll();
-        $promotions = $this->getPromotionRepo()->findAll();
+
         $array = array(
-            'etudiants' => $etudiants_archive,
-            'promotions' => $promotions
+            'etudiants' => $this->getEtudiantRepo()->findAll(),
+            'promotions' => $this->getPromotionRepo()->findAll()
         );
+
         return $this->render('IutTrombiBundle:Secretaire:archive.html.twig', $array);
     }
 
     /**
+     * Affichage des étudiants selon les groupes pour un modification multiple.
+     * 
      * @Route("/secretaire/displayMulti", name="displayMulti")
      */
     public function displayMultiAction() {
-        $semestreRepository = $this->getSemestreRepo();
-        $groupeRepository = $this->getGroupeRepo();
-        $etudiantRepository = $this->getEtudiantRepo();
-
-        $les_semestres = $semestreRepository->findAll();
-        $les_groupes = $groupeRepository->findAll();
-        $les_etu = $etudiantRepository->findAll();
 
         $array = array(
-            'groupes' => $les_groupes,
-            'semestres' => $les_semestres,
-            'etudiants' => $les_etu);
+            'groupes' => $this->getGroupeRepo()->findAll(),
+            'semestres' => $this->getSemestreRepo()->findAll(),
+            'etudiants' => $this->getEtudiantRepo()->findAll());
 
         return $this->render('IutTrombiBundle:Secretaire:ajoutEtuGroupe.html.twig', $array);
     }
 
     /**
+     * Recherche un étudiant par nom ou prenom.
+     * 
      * @Route("/secretaire/search", name="search")
      */
     public function searchStudentAction() {
+        //On récupère le contenu du champ de recherche
         $search = $_POST['recherche'];
+
         $etudiants = array();
+
+        //On récupère les étudiants dont le nom correspond à la recherche
         $etudiants += $this->getEtudiantRepo()->findBy(array(
             'nom' => $search
         ));
+        //On récupère les étudiants dont le prenon correspond à la recherche
         $etudiants += $this->getEtudiantRepo()->findBy(array(
             'prenom' => $search
         ));
+
         $array = array(
             'etudiants' => $etudiants,
             'groupes' => $this->getGroupeRepo()->findAll()
         );
+
         return $this->render('IutTrombiBundle:Secretaire:searchRender.html.twig', $array);
     }
 
     /**
+     * Création d'étudiant depuis une liste Apogee.
+     * Créer aussi une promotion en fonction de l'année d'inscription de l'étudiant
      * 
      * @Route("/secretaire/import", name="import")
      */
@@ -162,27 +165,35 @@ class SecretaireController extends Controller {
         if ($_FILES['liste_etudiants']['error'] > 0) {
             $erreur = "Erreur lors du transfert du fichier";
         }
-        $target_file = $this->get('kernel')->getRootDir() . '/../web/' . basename($_FILES['liste_etudiants']['name']);
+        $target_file = $this->getWebDir() . basename($_FILES['liste_etudiants']['name']);
         $tranfert = move_uploaded_file($_FILES['liste_etudiants']['tmp_name'], $target_file);
+        //Si l'upload est effectué
         if ($tranfert) {
             $fichier = fopen($target_file, "r+");
             $liste = array();
             $ligne = fgets($fichier);
+            $set_promo = FALSE;
             $em = $this->getEM();
             $groupeRepository = $this->getGroupeRepo();
+            //On récupère un groupe de td par défaut.
             $td = $groupeRepository->findOneBy(array(
                 'idSemestre' => $this->getSemestreRepo()->find(1),
                 'idPere' => null
             ));
+            //On récupère un groupe de tp par défaut.
             $tp = $groupeRepository->findOneBy(array(
                 'idSemestre' => $this->getSemestreRepo()->find(1),
                 'idPere' => $td
             ));
             $promo = new \Iut\TrombiBundle\Entity\Promotion();
-            $promo->setAnnee(getdate()['year'] + 2);
-            $em->persist($promo);
             while ($ligne = fgets($fichier)) {
                 $liste = explode("	", $ligne);
+                //On créer une nouvelle promotion.
+                if (!$set_promo) {
+                    $promo->setAnnee($liste[0] + 2);
+                    $em->persist($promo);
+                    $set_promo = TRUE;
+                }
                 $etu = new \Iut\TrombiBundle\Entity\Etudiant();
                 $etu->setNom($liste[28]);
                 $etu->setPrenom($liste[30]);
@@ -198,9 +209,8 @@ class SecretaireController extends Controller {
                 $em->flush();
             }
             fclose($fichier);
-        } else {
-            
         }
+        //On supprime la liste Apogee du répertoire.
         if (file_exists($target_file)) {
             unlink(realpath($target_file));
         }
@@ -208,6 +218,8 @@ class SecretaireController extends Controller {
     }
 
     /**
+     * Création d'un groupe TD/TP
+     * 
      * @Route("/secretaire/addGrp", name="addGrp")
      */
     public function addGrpAction() {
@@ -218,17 +230,10 @@ class SecretaireController extends Controller {
             'idPere' => $_POST['idPere'],
         );
 
-        $em = $this->getDoctrine()->getManager();
-        $semestreRepository = $em->getRepository('IutTrombiBundle:Semestre');
-        $semestre = $semestreRepository->find($form_grp['idSemestre']);
-
-        $groupeRepository = $em->getRepository('IutTrombiBundle:Groupe');
-        $groupePere = $groupeRepository->find($form_grp['idPere']);
-
         $groupe = new \Iut\TrombiBundle\Entity\Groupe();
         $groupe->setLibelle($form_grp['libelle']);
-        $groupe->setIdSemestre($semestre);
-        $groupe->setIdPere($groupePere);
+        $groupe->setIdSemestre($this->getSemestreRepo()->find($form_grp['idSemestre']));
+        $groupe->setIdPere($this->getGroupeRepo()->find($form_grp['idPere']));
         $em->persist($groupe);
         $em->flush();
 
@@ -236,6 +241,8 @@ class SecretaireController extends Controller {
     }
 
     /**
+     * Modifie un étudiant.
+     * 
      * @Route("/secretaire/modify", name="modify")
      */
     public function modifyAction() {
@@ -250,15 +257,15 @@ class SecretaireController extends Controller {
         );
 
         $em = $this->getEM();
-        $etudiantRepository = $this->getEtudiantRepo();
-        $groupeRepository = $this->getGroupeRepo();
-        $new_td = $groupeRepository->find($form_etudiant['groupe_td']);
-        $new_tp = $groupeRepository->find($form_etudiant['groupe_tp']);
-        $etudiant = $etudiantRepository->find($form_etudiant['id']);
+        $new_td = $this->getGroupeRepo()->find($form_etudiant['groupe_td']);
+        $new_tp = $this->getGroupeRepo()->find($form_etudiant['groupe_tp']);
+        $etudiant = $this->getEtudiantRepo()->find($form_etudiant['id']);
+
         foreach ($etudiant->getIdGroupe() as $groupeE) {
             $groupeE->removeIdEtudiant($etudiant);
             $etudiant->removeIdGroupe($groupeE);
         }
+
         $etudiant->setNom($form_etudiant['nom']);
         $etudiant->setPrenom($form_etudiant['prenom']);
         $etudiant->setNoEtudiant($form_etudiant['no_etudiant']);
@@ -276,6 +283,8 @@ class SecretaireController extends Controller {
     }
 
     /**
+     * Modifie le groupe de TD/TP de plusieur étudiant.
+     * 
      * @Route("/secretaire/modifMultiEtuGrp", name="modifMultiEtuGrp")
      */
     public function modifMultiEtuGrpAction() {
@@ -287,17 +296,15 @@ class SecretaireController extends Controller {
         );
 
         $em = $this->getEM();
-        $etudiantRepository = $this->getEtudiantRepo();
-        $groupeRepository = $this->getGroupeRepo();
-        $groupeTD = $groupeRepository->find($form['groupeTD']);
-        $groupeTP = $groupeRepository->find($form['groupeTP']);
+        $groupeTD = $this->getGroupeRepo()->find($form['groupeTD']);
+        $groupeTP = $this->getGroupeRepo()->find($form['groupeTP']);
         foreach ($form['etudiants'] as $etudiant) {
-            $unEtu = $etudiantRepository->find($etudiant);
+            $unEtu = $this->getEtudiantRepo()->find($etudiant);
             foreach ($unEtu->getIdGroupe() as $groupeE) {
                 $groupeE->removeIdEtudiant($unEtu);
                 $unEtu->removeIdGroupe($groupeE);
             }
-            $unEtu = $etudiantRepository->find($etudiant);
+            $unEtu = $this->getEtudiantRepo()->find($etudiant);
             $unEtu->addIdGroupe($groupeTD);
             $unEtu->addIdGroupe($groupeTP);
             $em->persist($unEtu);
@@ -307,6 +314,8 @@ class SecretaireController extends Controller {
     }
 
     /**
+     * Modification d'un groupe TD/TP.
+     * 
      * @Route("/secretaire/modifGrp", name="modifGrp")
      */
     public function modifGrpAction() {
@@ -318,12 +327,10 @@ class SecretaireController extends Controller {
             'idPere' => $_POST['idPere']
         );
 
-        $em = $this->getDoctrine()->getManager();
-        $groupeRepository = $em->getRepository('IutTrombiBundle:Groupe');
-        $semestreRepository = $em->getRepository('IutTrombiBundle:Semestre');
-        $new_semestre = $semestreRepository->find($form_groupe['idSemestre']);
-        $new_pere = $groupeRepository->find($form_groupe['idPere']);
-        $groupe = $groupeRepository->find($form_groupe['id']);
+        $em = $this->getEM();
+        $new_semestre = $this->getSemestreRepo()->find($form_groupe['idSemestre']);
+        $new_pere = $this->getGroupeRepo()->find($form_groupe['idPere']);
+        $groupe = $this->getGroupeRepo()->find($form_groupe['id']);
 
         $groupe->setLibelle($form_groupe['libelle']);
         $groupe->setIdSemestre($new_semestre);
@@ -335,31 +342,34 @@ class SecretaireController extends Controller {
     }
 
     /**
+     * Supprime un étudiant.
+     * 
      * @Route("/secretaire/supp/{idEtudiant}", name="supp")
      */
     public function suppressionEtudiantAction($idEtudiant) {
         $em = $this->getEM();
-        $etudiantRepository = $this->getEtudiantRepo();
-        $etudiant = $etudiantRepository->find($idEtudiant);
+        $etudiant = $this->getEtudiantRepo()->find($idEtudiant);
         $em->remove($etudiant);
         $em->flush();
         return $this->render('IutTrombiBundle:Secretaire:index.html.twig');
     }
 
     /**
+     * Supprime un groupe TD/TP.
+     * 
      * @Route("/secretaire/suppGrp/{idGroupe}", name="suppGrp")
      */
     public function suppressionGroupeAction($idGroupe) {
-        $doctrine = $this->getDoctrine();
-        $em = $doctrine->getManager();
-        $groupeRepository = $em->getRepository('IutTrombiBundle:Groupe');
-        $groupe = $groupeRepository->find($idGroupe);
+        $em = $this->getEM();
+        $groupe = $this->getGroupeRepo()->find($idGroupe);
         $em->remove($groupe);
         $em->flush();
         return $this->render('IutTrombiBundle:Secretaire:index.html.twig');
     }
 
     /**
+     * Ajoute un étudiant.
+     * 
      * @Route("/secretaire/addStudent", name="addStudent")
      */
     public function addStudentAction() {
@@ -384,10 +394,9 @@ class SecretaireController extends Controller {
 
         if ($this->checkImg($img)) {
             $urlPhoto = $this->uploadImg($form_etudiant['nom'], $form_etudiant['prenom'], $img);
-            $em = $this->getDoctrine()->getManager();
-            $groupeRepository = $em->getRepository('IutTrombiBundle:Groupe');
-            $new_td = $groupeRepository->find($form_etudiant['groupe_td']);
-            $new_tp = $groupeRepository->find($form_etudiant['groupe_tp']);
+            $em = $this->getEM();
+            $new_td = $this->getGroupeRepo()->find($form_etudiant['groupe_td']);
+            $new_tp = $this->getGroupeRepo()->find($form_etudiant['groupe_tp']);
             $etudiant = new \Iut\TrombiBundle\Entity\Etudiant();
             $etudiant->setNom($form_etudiant['nom']);
             $etudiant->setPrenom($form_etudiant['prenom']);
@@ -411,26 +420,26 @@ class SecretaireController extends Controller {
     }
 
     /**
+     * Passe les étudiants d'un semestre au suivant.
+     * Si les étudiants sont au dernier semestre, on ne les lie à aucun groupe.
+     * 
      * @Route("/secretaire/nextSemestre",name="nextSemestre")
      */
     public function changerSemestreAction() {
         $em = $this->getEM();
-        $groupeRepository = $this->getGroupeRepo();
-        $etudiantRepository = $this->getEtudiantRepo();
-        $semestreRepository = $this->getSemestreRepo();
-        $list_etudiant = $etudiantRepository->findAll();
-        $list_semestre = $semestreRepository->findAll();
+        $list_etudiant = $this->getEtudiantRepo()->findAll();
+        $list_semestre = $this->getSemestreRepo()->findAll();
         foreach (array_reverse($list_semestre) as $semestre) {
-            $list_groupe = $groupeRepository->findBy(array(
+            $list_groupe = $this->getGroupeRepo()->findBy(array(
                 'idSemestre' => $semestre
             ));
             if ($semestre->getId() == 4) {
                 $nextSem = $semestre;
             } else {
-                $new_td = $groupeRepository->findBy(array(
+                $new_td = $this->getGroupeRepo()->findBy(array(
                     'idSemestre' => $nextSem
                 ));
-                $new_tp = $groupeRepository->findBy(array(
+                $new_tp = $this->getGroupeRepo()->findBy(array(
                     'idPere' => $new_td
                 ));
                 $nextSem = $semestre;
@@ -445,10 +454,7 @@ class SecretaireController extends Controller {
                             if (isset($new_td)) {
                                 $etudiant->addIdGroupe($new_td[0]);
                                 $new_td[0]->addIdEtudiant($etudiant);
-                                //$em->persist($new_td[0]);
                             }
-                            //$em->persist($etudiant);
-                            //$em->persist($groupe);
                             $em->flush();
                         } else {
                             $etudiant->removeIdGroupe($groupe);
@@ -456,10 +462,7 @@ class SecretaireController extends Controller {
                             if (isset($new_tp)) {
                                 $etudiant->addIdGroupe($new_tp[0]);
                                 $new_tp[0]->addIdEtudiant($etudiant);
-                                //$em->persist($new_tp[0]);
                             }
-                            //$em->persist($etudiant);
-                            // $em->persist($groupe);
                             $em->flush();
                         }
                     }
@@ -470,21 +473,20 @@ class SecretaireController extends Controller {
     }
 
     /**
+     * Créer une feuille d'émargement PDF en fonction du Trombinoscope visualisé.
+     * 
      * @Route("/secretaire/exporterEmargementPDF/{p_idGroupe}/{p_idSemestre}",name="exporterEmargementPDF")
      */
     public function exporterEmargementPDFAction($p_idGroupe, $p_idSemestre) {
-        $etudiantRepository = $this->getEtudiantRepo();
-        $groupeRepository = $this->getGroupeRepo();
-        $semestreRepository = $this->getSemestreRepo();
-        $etudiants = $etudiantRepository->findAll();
+        $etudiants = $this->getEtudiantRepo()->findAll();
 
         $pdf = new \FPDF();
         $pdf->AddPage();
         $pdf->SetFont('arial', '', 10);
         if ($p_idGroupe == -1) {
-            $pdf->Cell(160, 7, 'Feuille d\'emargement - ' . $semestreRepository->find($p_idSemestre)->getLibelle());
+            $pdf->Cell(160, 7, 'Feuille d\'emargement - ' . $this->getSemestreRepo()->find($p_idSemestre)->getLibelle());
         } else {
-            $pdf->Cell(160, 7, 'Feuille d\'emargement - ' . $semestreRepository->find($p_idSemestre)->getLibelle() . ' - Groupe ' . $groupeRepository->find($p_idGroupe)->getLibelle());
+            $pdf->Cell(160, 7, 'Feuille d\'emargement - ' . $this->getSemestreRepo()->find($p_idSemestre)->getLibelle() . ' - Groupe ' . $this->getGroupeRepo()->find($p_idGroupe)->getLibelle());
         }
         $pdf->Ln();
         $pdf->Ln();
@@ -500,8 +502,8 @@ class SecretaireController extends Controller {
         $pdf->Ln();
         $pdf->Ln();
         if ($p_idGroupe == -1) {
-            $semestre = $semestreRepository->find($p_idSemestre);
-            $groupes = $groupeRepository->findBy(array(
+            $semestre = $this->getSemestreRepo()->find($p_idSemestre);
+            $groupes = $this->getGroupeRepo()->findBy(array(
                 'idSemestre' => $semestre
             ));
             $liste_etudiant = $this->trieEtudiantSemestre($groupes, $etudiants);
@@ -533,7 +535,7 @@ class SecretaireController extends Controller {
             }
             $pdf->Output('D', 'feuille_emargement_' . $semestre->getLibelle() . '.pdf', true);
         } else {
-            $groupe = $groupeRepository->find($p_idGroupe);
+            $groupe = $this->getGroupeRepo()->find($p_idGroupe);
             $liste_etudiant = $this->trieEtudiantGroupe($groupe, $etudiants);
             $pdf->Cell(15, 5, 'Effectif :');
             $pdf->Cell(10, 5, count($liste_etudiant));
@@ -562,19 +564,16 @@ class SecretaireController extends Controller {
             }
             $pdf->Output('D', 'feuille_emargement_' . $groupe->getLibelle() . '.pdf', true);
         }
-
-
         return $this->render('IutTrombiBundle:Secretaire:index.html.twig');
     }
 
     /**
+     * Créer un trombinoscope PDF du trombinoscope visualisé.
+     * 
      * @Route("/secretaire/exporterTrombiPDF/{p_idGroupe}/{p_idSemestre}",name="exporterTrombiPDF")
      */
     public function exporterTrombiPDFAction($p_idGroupe, $p_idSemestre) {
-        $etudiantRepository = $this->getEtudiantRepo();
-        $groupeRepository = $this->getGroupeRepo();
-        $semestreRepository = $this->getSemestreRepo();
-        $etudiants = $etudiantRepository->findAll();
+        $etudiants = $this->getEtudiantRepo()->findAll();
 
         $pdf = new \FPDF();
         $pdf->AddPage();
@@ -582,15 +581,15 @@ class SecretaireController extends Controller {
         $x = 22;
         $y = 35;
         if ($p_idGroupe == -1) {
-            $pdf->Cell(160, 7, 'Trombinoscope - ' . $semestreRepository->find($p_idSemestre)->getLibelle());
+            $pdf->Cell(160, 7, 'Trombinoscope - ' . $this->getSemestreRepo()->find($p_idSemestre)->getLibelle());
         } else {
-            $pdf->Cell(160, 7, 'Trombinoscope - ' . $semestreRepository->find($p_idSemestre)->getLibelle() . ' - Groupe ' . $groupeRepository->find($p_idGroupe)->getLibelle());
+            $pdf->Cell(160, 7, 'Trombinoscope - ' . $this->getSemestreRepo()->find($p_idSemestre)->getLibelle() . ' - Groupe ' . $this->getGroupeRepo()->find($p_idGroupe)->getLibelle());
         }
         $pdf->Ln();
         $pdf->Ln();
         if ($p_idGroupe == -1) {
-            $semestre = $semestreRepository->find($p_idSemestre);
-            $groupes = $groupeRepository->findBy(array(
+            $semestre = $this->getSemestreRepo()->find($p_idSemestre);
+            $groupes = $this->getGroupeRepo()->findBy(array(
                 'idSemestre' => $semestre
             ));
             $liste_etudiant = $this->trieEtudiantSemestre($groupes, $etudiants);
@@ -612,7 +611,7 @@ class SecretaireController extends Controller {
                     $x = 22;
                     if ($y >= 235) {
                         $pdf->AddPage();
-                        $pdf->Cell(160, 7, 'Trombinoscope - ' . $semestreRepository->find($p_idSemestre)->getLibelle());
+                        $pdf->Cell(160, 7, 'Trombinoscope - ' . $this->getSemestreRepo()->find($p_idSemestre)->getLibelle());
                         $y = -10;
                     }
                     $y += 50;
@@ -622,7 +621,7 @@ class SecretaireController extends Controller {
             }
             $pdf->Output('D', 'trombinoscope_' . $semestre->getLibelle() . '.pdf', true);
         } else {
-            $groupe = $groupeRepository->find($p_idGroupe);
+            $groupe = $this->getGroupeRepo()->find($p_idGroupe);
             $liste_etudiant = $this->trieEtudiantGroupe($groupe, $etudiants);
             foreach ($liste_etudiant as $etudiant) {
                 foreach ($etudiant->getIdGroupe() as $groupe_etudiant) {
@@ -642,7 +641,7 @@ class SecretaireController extends Controller {
                     $x = 22;
                     if ($y >= 235) {
                         $pdf->AddPage();
-                        $pdf->Cell(160, 7, 'Trombinoscope - ' . $semestreRepository->find($p_idSemestre)->getLibelle() . ' - Groupe ' . $groupeRepository->find($p_idGroupe)->getLibelle());
+                        $pdf->Cell(160, 7, 'Trombinoscope - ' . $this->getSemestreRepo()->find($p_idSemestre)->getLibelle() . ' - Groupe ' . $this->getGroupeRepo()->find($p_idGroupe)->getLibelle());
                         $y = -10;
                     }
                     $y += 50;
@@ -655,72 +654,73 @@ class SecretaireController extends Controller {
     }
 
     /**
-     * @Route("/secretaire/exportExcelListe/{p_idGroupe}/{p_idSemestre}",name="exportExcelListe")
-     * @param type $p_groupe
-     * @param type $p_listeEtudiant
+     * Créer une liste d'émargement Excel du trombinoscope visualisé.
      * 
+     * @Route("/secretaire/ExportExcelListe/{p_idGroupe}/{p_idSemestre}",name="exportExcelListe")
+     * @param type $p_idGroupe
+     * @param type $p_idSemestre
      */
     public function exportExcelListe($p_idGroupe, $p_idSemestre) {
         $etudiantRepository = $this->getEtudiantRepo();
         $groupeRepository = $this->getGroupeRepo();
         $semestreRepository = $this->getSemestreRepo();
         $etudiants = $etudiantRepository->findAll();
-        
-        
+
+
         $listeExcel = new \PHPExcel();
-        
-        
+
+
         $listeExcel->getProperties()->setCreator("IUT de Valence")
-                                    ->setTitle("Feuille d'émargement");
-     
+                ->setTitle("Feuille d'émargement");
+
         $sheet = $listeExcel->getActiveSheet();
         if ($p_idGroupe == -1) {
-            $sheet->setCellValue('A1','Feuille d\'émargement - ' . $semestreRepository->find($p_idSemestre)->getLibelle());
+            $sheet->setCellValue('A1', 'Feuille d\'émargement - ' . $semestreRepository->find($p_idSemestre)->getLibelle());
         } else {
             $sheet->setCellValue('A1', 'Feuille d\'emargement - ' . $semestreRepository->find($p_idSemestre)->getLibelle() . ' - Groupe ' . $groupeRepository->find($p_idGroupe)->getLibelle());
         }
-        
-        
-        $sheet->setCellValue('B4','Enseignant :');
+
+
+        $sheet->setCellValue('B4', 'Enseignant :');
         $sheet->setCellValue('E4', 'Date :');
         $sheet->setCellValue('B6', 'Matiere :');
         $sheet->setCellValue('E6', 'Horaire :');
-            
+
         $sheet->setCellValue('B12', 'No Etudiant');
         $sheet->setCellValue('C12', 'Nom Prenom');
         $sheet->setCellValue('D12', 'TD');
         $sheet->setCellValue('E12', 'TP');
         $sheet->setCellValue('F12', 'Emargement');
-        
+
         $sheet->getColumnDimension('C')->setWidth(28);
         $sheet->getColumnDimension('B')->setWidth(15);
         $sheet->getColumnDimension('F')->setWidth(20);
-        
+
         $sheet->getStyle('B12')->getFont()
-            ->applyFromArray(array(
-                'bold'=>true,
-                'size'=>12));
-        
+                ->applyFromArray(array(
+                    'bold' => true,
+                    'size' => 12));
+
         $sheet->getStyle('C12')->getFont()
-            ->applyFromArray(array(
-                'bold'=>true,
-                'size'=>12));
-        
+                ->applyFromArray(array(
+                    'bold' => true,
+                    'size' => 12));
+
         $sheet->getStyle('D12')->getFont()
-            ->applyFromArray(array(
-                'bold'=>true,
-                'size'=>12));
-        
+                ->applyFromArray(array(
+                    'bold' => true,
+                    'size' => 12));
+
         $sheet->getStyle('E12')->getFont()
-            ->applyFromArray(array(
-                'bold'=>true,
-                'size'=>12));
-        
+                ->applyFromArray(array(
+                    'bold' => true,
+                    'size' => 12));
+
         $sheet->getStyle('F12')->getFont()
-            ->applyFromArray(array(
-                'bold'=>true,
-                'size'=>12));
-            
+                ->applyFromArray(array(
+                    'bold' => true,
+                    'size' => 12));
+
         $i = 13;
         if ($p_idGroupe == -1) {
             $semestre = $semestreRepository->find($p_idSemestre);
@@ -728,8 +728,8 @@ class SecretaireController extends Controller {
                 'idSemestre' => $semestre
             ));
             $liste_etudiant = $this->trieEtudiantSemestre($groupes, $etudiants);
-            $sheet->setCellValue('B9', 'Effetif : '.count($liste_etudiant));
-            
+            $sheet->setCellValue('B9', 'Effetif : ' . count($liste_etudiant));
+
             foreach ($liste_etudiant as $etudiant) {
                 foreach ($etudiant->getIdGroupe() as $groupe_etudiant) {
                     if ($groupe_etudiant->getIdPere() == null) {
@@ -738,74 +738,74 @@ class SecretaireController extends Controller {
                         $tp = $groupe_etudiant;
                     }
                 }
-                $sheet->setCellValue('B'.$i, $etudiant->getNoEtudiant());
-                $sheet->setCellValue('C'.$i, $etudiant->getNom() . '  ' . $etudiant->getPrenom());
-                $sheet->setCellValue('D'.$i, $td->getLibelle());
-                $sheet->setCellValue('E'.$i, $tp->getLibelle());
-                
-                
-                $sheet->getStyle('B'.$i)->getBorders()->applyFromArray(
-    		array(
-    			'allborders' => array(
-    				'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-    				'color' => array(
-    					'rgb' => '000000'
-    				)
+                $sheet->setCellValue('B' . $i, $etudiant->getNoEtudiant());
+                $sheet->setCellValue('C' . $i, $etudiant->getNom() . '  ' . $etudiant->getPrenom());
+                $sheet->setCellValue('D' . $i, $td->getLibelle());
+                $sheet->setCellValue('E' . $i, $tp->getLibelle());
+
+
+                $sheet->getStyle('B' . $i)->getBorders()->applyFromArray(
+                        array(
+                            'allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
+                                    'rgb' => '000000'
+                                )
                             )
-                    )
+                        )
                 );
-                
-                $sheet->getStyle('C'.$i)->getBorders()->applyFromArray(
-    		array(
-    			'allborders' => array(
-    				'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-    				'color' => array(
-    					'rgb' => '000000'
-    				)
+
+                $sheet->getStyle('C' . $i)->getBorders()->applyFromArray(
+                        array(
+                            'allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
+                                    'rgb' => '000000'
+                                )
                             )
-                    )
+                        )
                 );
-                
-                $sheet->getStyle('D'.$i)->getBorders()->applyFromArray(
-    		array(
-    			'allborders' => array(
-    				'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-    				'color' => array(
-    					'rgb' => '000000'
-    				)
+
+                $sheet->getStyle('D' . $i)->getBorders()->applyFromArray(
+                        array(
+                            'allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
+                                    'rgb' => '000000'
+                                )
                             )
-                    )
+                        )
                 );
-                
-                $sheet->getStyle('E'.$i)->getBorders()->applyFromArray(
-    		array(
-    			'allborders' => array(
-    				'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-    				'color' => array(
-    					'rgb' => '000000'
-    				)
+
+                $sheet->getStyle('E' . $i)->getBorders()->applyFromArray(
+                        array(
+                            'allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
+                                    'rgb' => '000000'
+                                )
                             )
-                    )
+                        )
                 );
-                
-                $sheet->getStyle('F'.$i)->getBorders()->applyFromArray(
-    		array(
-    			'allborders' => array(
-    				'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-    				'color' => array(
-    					'rgb' => '000000'
-    				)
+
+                $sheet->getStyle('F' . $i)->getBorders()->applyFromArray(
+                        array(
+                            'allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
+                                    'rgb' => '000000'
+                                )
                             )
-                    )
+                        )
                 );
                 $i++;
             }
         } else {
             $groupe = $groupeRepository->find($p_idGroupe);
-            
+
             $liste_etudiant = $this->trieEtudiantGroupe($groupe, $etudiants);
-            $sheet->setCellValue('B9', 'Effetif : '.count($liste_etudiant));
-           
+            $sheet->setCellValue('B9', 'Effetif : ' . count($liste_etudiant));
+
             foreach ($liste_etudiant as $etudiant) {
                 foreach ($etudiant->getIdGroupe() as $groupe_etudiant) {
                     if ($groupe_etudiant->getIdPere() == null) {
@@ -814,76 +814,76 @@ class SecretaireController extends Controller {
                         $tp = $groupe_etudiant;
                     }
                 }
-                
-                $sheet->setCellValue('B'.$i, $etudiant->getNoEtudiant());
-                $sheet->setCellValue('C'.$i, $etudiant->getNom() . '  ' . $etudiant->getPrenom());
-                $sheet->setCellValue('D'.$i, $td->getLibelle());
-                $sheet->setCellValue('E'.$i, $tp->getLibelle());
-                
-                $sheet->getStyle('B'.$i)->getBorders()->applyFromArray(
-    		array(
-    			'allborders' => array(
-    				'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-    				'color' => array(
-    					'rgb' => '000000'
-    				)
-    			)
-                    )
-                );
-                
-                $sheet->getStyle('C'.$i)->getBorders()->applyFromArray(
-    		array(
-    			'allborders' => array(
-    				'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-    				'color' => array(
-    					'rgb' => '000000'
-    				)
+
+                $sheet->setCellValue('B' . $i, $etudiant->getNoEtudiant());
+                $sheet->setCellValue('C' . $i, $etudiant->getNom() . '  ' . $etudiant->getPrenom());
+                $sheet->setCellValue('D' . $i, $td->getLibelle());
+                $sheet->setCellValue('E' . $i, $tp->getLibelle());
+
+                $sheet->getStyle('B' . $i)->getBorders()->applyFromArray(
+                        array(
+                            'allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
+                                    'rgb' => '000000'
+                                )
                             )
-                    )
+                        )
                 );
-                
-                $sheet->getStyle('D'.$i)->getBorders()->applyFromArray(
-    		array(
-    			'allborders' => array(
-    				'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-    				'color' => array(
-    					'rgb' => '000000'
-    				)
+
+                $sheet->getStyle('C' . $i)->getBorders()->applyFromArray(
+                        array(
+                            'allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
+                                    'rgb' => '000000'
+                                )
                             )
-                    )
+                        )
                 );
-                
-                $sheet->getStyle('E'.$i)->getBorders()->applyFromArray(
-    		array(
-    			'allborders' => array(
-    				'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-    				'color' => array(
-    					'rgb' => '000000'
-    				)
+
+                $sheet->getStyle('D' . $i)->getBorders()->applyFromArray(
+                        array(
+                            'allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
+                                    'rgb' => '000000'
+                                )
                             )
-                    )
+                        )
                 );
-                
-                $sheet->getStyle('F'.$i)->getBorders()->applyFromArray(
-    		array(
-    			'allborders' => array(
-    				'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-    				'color' => array(
-    					'rgb' => '000000'
-    				)
+
+                $sheet->getStyle('E' . $i)->getBorders()->applyFromArray(
+                        array(
+                            'allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
+                                    'rgb' => '000000'
+                                )
                             )
-                    )
+                        )
+                );
+
+                $sheet->getStyle('F' . $i)->getBorders()->applyFromArray(
+                        array(
+                            'allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
+                                    'rgb' => '000000'
+                                )
+                            )
+                        )
                 );
                 $i++;
             }
         }
-        
+
         $objWriter = new \PHPExcel_Writer_Excel2007($listeExcel);
-        
+
         header('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition:inline;filename=Feuille d\'émargement.xlsx ');
         $objWriter->save('php://output');
-        
+
         return $this->render('IutTrombiBundle:Trombi:index.html.twig');
     }
 
@@ -974,12 +974,17 @@ class SecretaireController extends Controller {
 
     /**
      * Methode qui retourne le répertoire web du bundle.
+     * 
      * @return type
      */
     public function getWebDir() {
         return $this->get('kernel')->getRootDir() . '/../web/';
     }
-
+    
+    /**
+     * Methode qui retourne le répertoire photos dans lequel sont stockées les photos des étudiants.
+     * @return type
+     */
     public function getPhotosDir() {
         return $this->getWebDir() . 'img/photos/';
     }
@@ -999,7 +1004,8 @@ class SecretaireController extends Controller {
     }
 
     /**
-     * Vérifie si l'image correspond au critère d'upload.
+     * Vérifie si l'image correspond aux critères d'upload.
+     * 
      * @param type $img
      * @return boolean
      */
