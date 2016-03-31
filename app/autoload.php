@@ -10,6 +10,4 @@ $loader = require __DIR__.'/../vendor/autoload.php';
 
 AnnotationRegistry::registerLoader(array($loader, 'loadClass'));
 
-include __DIR__.'/../vendor/fpdf/src/fpdf.php';
-
 return $loader;

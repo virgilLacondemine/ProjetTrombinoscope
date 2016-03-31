@@ -655,7 +655,7 @@ class SecretaireController extends Controller {
     }
 
     /**
-     * @Route("/secretaire/ExportExcelListe/{p_idGroupe}/{p_idSemestre}",name="exportExcelListe")
+     * @Route("/secretaire/exportExcelListe/{p_idGroupe}/{p_idSemestre}",name="exportExcelListe")
      * @param type $p_groupe
      * @param type $p_listeEtudiant
      * 

@@ -322,7 +322,7 @@ class ProfController extends Controller {
     }
 
       /**
-     * @Route("/prof/ExportExcelListe/{p_idGroupe}/{p_idSemestre}",name="exportExcelListe")
+     * @Route("/prof/exportExcelListe/{p_idGroupe}/{p_idSemestre}",name="profExportExcelListe")
      * @param type $p_groupe
      * @param type $p_listeEtudiant
      * 
