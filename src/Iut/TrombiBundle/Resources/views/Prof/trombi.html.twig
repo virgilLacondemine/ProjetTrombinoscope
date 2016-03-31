@@ -33,7 +33,7 @@
             <li><span class="input-group-addon">Trombinoscope</span> </li>
             <li><div class="btn-group btn-group-justified">
                     <a class="btn btn-danger" href="{{ path('profExporterTrombiPDF',{'p_idGroupe': p_idGroupe, 'p_idSemestre': p_idSemestre}) }}">PDF</a>
-                    <a class="btn btn-success" href="#">Excel</a>
+                    <a class="btn btn-success" href="{{ path('profExportExcelTrombi',{'p_idGroupe': p_idGroupe, 'p_idSemestre': p_idSemestre}) }}">Excel</a>
                 </div>
             </li>
         </ul>
