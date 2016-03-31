@@ -27,7 +27,7 @@
             <li><span class="input-group-addon">Feuille d'émargement</span></li>
             <li><div class="btn-group btn-group-justified">
                     <a class="btn btn-danger" href="{{ path('profExporterEmargementPDF',{'p_idGroupe': p_idGroupe, 'p_idSemestre': p_idSemestre}) }}">PDF</a>
-                    <a class="btn btn-success" href="#">Excel</a>
+                    <a class="btn btn-success" href="{{ path('profExportExcelListe',{'p_idGroupe': p_idGroupe, 'p_idSemestre': p_idSemestre}) }}">Excel</a>
                 </div></li>
             <li class="divider"></li>
             <li><span class="input-group-addon">Trombinoscope</span> </li>
