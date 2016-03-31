@@ -256,6 +256,22 @@ class SecretaireController extends Controller {
             'groupe_tp' => $_POST['groupe_tp']
         );
 
+        if ($_FILES['img']['tmp_name'] != null) {
+            $img = array(
+                'nom' => $_FILES['img']['name'],
+                'type' => $_FILES['img']['type'],
+                'taille' => $_FILES['img']['size'],
+                'dimensions' => getimagesize($_FILES['img']['tmp_name']),
+                'location_tmp' => $_FILES['img']['tmp_name']
+            );
+            if ($this->checkImg($img)) {
+                $urlPhoto = $this->uploadImg($form_etudiant['nom'], $form_etudiant['prenom'], $img);
+            } else {
+                
+            }
+        } else {
+            $urlPhoto = 'img/Photos/default.gif';
+        }
         $em = $this->getEM();
         $new_td = $this->getGroupeRepo()->find($form_etudiant['groupe_td']);
         $new_tp = $this->getGroupeRepo()->find($form_etudiant['groupe_tp']);
@@ -269,6 +285,7 @@ class SecretaireController extends Controller {
         $etudiant->setNom($form_etudiant['nom']);
         $etudiant->setPrenom($form_etudiant['prenom']);
         $etudiant->setNoEtudiant($form_etudiant['no_etudiant']);
+        $etudiant->setUrlPhoto($urlPhoto);
         $etudiant->addIdGroupe($new_td);
         $new_td->addIdEtudiant($etudiant);
         $new_tp->addIdEtudiant($etudiant);
@@ -665,62 +682,62 @@ class SecretaireController extends Controller {
         $groupeRepository = $this->getGroupeRepo();
         $semestreRepository = $this->getSemestreRepo();
         $etudiants = $etudiantRepository->findAll();
-        
-        
+
+
         $listeExcel = new \PHPExcel();
-        
-        
+
+
         $listeExcel->getProperties()->setCreator("IUT de Valence")
-                                    ->setTitle("Feuille d'émargement");
-     
+                ->setTitle("Feuille d'émargement");
+
         $sheet = $listeExcel->getActiveSheet();
         if ($p_idGroupe == -1) {
-            $sheet->setCellValue('A1','Feuille d\'émargement - ' . $semestreRepository->find($p_idSemestre)->getLibelle());
+            $sheet->setCellValue('A1', 'Feuille d\'émargement - ' . $semestreRepository->find($p_idSemestre)->getLibelle());
         } else {
             $sheet->setCellValue('A1', 'Feuille d\'emargement - ' . $semestreRepository->find($p_idSemestre)->getLibelle() . ' - Groupe ' . $groupeRepository->find($p_idGroupe)->getLibelle());
         }
-        
-        
-        $sheet->setCellValue('B4','Enseignant :');
+
+
+        $sheet->setCellValue('B4', 'Enseignant :');
         $sheet->setCellValue('E4', 'Date :');
         $sheet->setCellValue('B6', 'Matiere :');
         $sheet->setCellValue('E6', 'Horaire :');
-            
+
         $sheet->setCellValue('B12', 'No Etudiant');
         $sheet->setCellValue('C12', 'Nom Prenom');
         $sheet->setCellValue('D12', 'TD');
         $sheet->setCellValue('E12', 'TP');
         $sheet->setCellValue('F12', 'Emargement');
-        
+
         $sheet->getColumnDimension('C')->setWidth(28);
         $sheet->getColumnDimension('B')->setWidth(15);
         $sheet->getColumnDimension('F')->setWidth(20);
-        
+
         $sheet->getStyle('B12')->getFont()
-            ->applyFromArray(array(
-                'bold'=>true,
-                'size'=>12));
-        
+                ->applyFromArray(array(
+                    'bold' => true,
+                    'size' => 12));
+
         $sheet->getStyle('C12')->getFont()
-            ->applyFromArray(array(
-                'bold'=>true,
-                'size'=>12));
-        
+                ->applyFromArray(array(
+                    'bold' => true,
+                    'size' => 12));
+
         $sheet->getStyle('D12')->getFont()
-            ->applyFromArray(array(
-                'bold'=>true,
-                'size'=>12));
-        
+                ->applyFromArray(array(
+                    'bold' => true,
+                    'size' => 12));
+
         $sheet->getStyle('E12')->getFont()
-            ->applyFromArray(array(
-                'bold'=>true,
-                'size'=>12));
-        
+                ->applyFromArray(array(
+                    'bold' => true,
+                    'size' => 12));
+
         $sheet->getStyle('F12')->getFont()
-            ->applyFromArray(array(
-                'bold'=>true,
-                'size'=>12));
-            
+                ->applyFromArray(array(
+                    'bold' => true,
+                    'size' => 12));
+
         $i = 13;
         if ($p_idGroupe == -1) {
             $semestre = $semestreRepository->find($p_idSemestre);
@@ -728,8 +745,8 @@ class SecretaireController extends Controller {
                 'idSemestre' => $semestre
             ));
             $liste_etudiant = $this->trieEtudiantSemestre($groupes, $etudiants);
-            $sheet->setCellValue('B9', 'Effetif : '.count($liste_etudiant));
-            
+            $sheet->setCellValue('B9', 'Effetif : ' . count($liste_etudiant));
+
             foreach ($liste_etudiant as $etudiant) {
                 foreach ($etudiant->getIdGroupe() as $groupe_etudiant) {
                     if ($groupe_etudiant->getIdPere() == null) {
@@ -738,75 +755,74 @@ class SecretaireController extends Controller {
                         $tp = $groupe_etudiant;
                     }
                 }
-                $sheet->setCellValue('B'.$i, $etudiant->getNoEtudiant());
-                $sheet->setCellValue('C'.$i, $etudiant->getNom() . '  ' . $etudiant->getPrenom());
-                $sheet->setCellValue('D'.$i, $td->getLibelle());
-                $sheet->setCellValue('E'.$i, $tp->getLibelle());
-                
-                
-                $sheet->getStyle('B'.$i)->getBorders()->applyFromArray(
-    		array('allborders' => array(
-                            'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-                            'color' => array(
+                $sheet->setCellValue('B' . $i, $etudiant->getNoEtudiant());
+                $sheet->setCellValue('C' . $i, $etudiant->getNom() . '  ' . $etudiant->getPrenom());
+                $sheet->setCellValue('D' . $i, $td->getLibelle());
+                $sheet->setCellValue('E' . $i, $tp->getLibelle());
+
+
+                $sheet->getStyle('B' . $i)->getBorders()->applyFromArray(
+                        array('allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
                                     'rgb' => '000000'
+                                )
                             )
                         )
-                    )
                 );
-                
-                $sheet->getStyle('C'.$i)->getBorders()->applyFromArray(
-    		array('allborders' => array(
-                            'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-                            'color' => array(
+
+                $sheet->getStyle('C' . $i)->getBorders()->applyFromArray(
+                        array('allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
                                     'rgb' => '000000'
+                                )
                             )
                         )
-                    )
                 );
-                
-                $sheet->getStyle('D'.$i)->getBorders()->applyFromArray(
-    		array('allborders' => array(
-                            'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-                            'color' => array(
+
+                $sheet->getStyle('D' . $i)->getBorders()->applyFromArray(
+                        array('allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
                                     'rgb' => '000000'
+                                )
                             )
                         )
-                    )
                 );
-                
-                $sheet->getStyle('E'.$i)->getBorders()->applyFromArray(
-    		array('allborders' => array(
-                            'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-                            'color' => array(
+
+                $sheet->getStyle('E' . $i)->getBorders()->applyFromArray(
+                        array('allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
                                     'rgb' => '000000'
+                                )
                             )
                         )
-                    )
                 );
-                
-                $sheet->getStyle('F'.$i)->getBorders()->applyFromArray(
-    		array('allborders' => array(
-                            'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-                            'color' => array(
+
+                $sheet->getStyle('F' . $i)->getBorders()->applyFromArray(
+                        array('allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
                                     'rgb' => '000000'
+                                )
                             )
                         )
-                    )
                 );
                 $i++;
             }
             $objWriter = new \PHPExcel_Writer_Excel2007($listeExcel);
-        
+
             header('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition:inline;filename=Feuille d\'émargement - '. $semestre->getLibelle() .'.xlsx ');
+            header('Content-Disposition:inline;filename=Feuille d\'émargement - ' . $semestre->getLibelle() . '.xlsx ');
             $objWriter->save('php://output');
-            
         } else {
             $groupe = $groupeRepository->find($p_idGroupe);
-            
+
             $liste_etudiant = $this->trieEtudiantGroupe($groupe, $etudiants);
-            $sheet->setCellValue('B9', 'Effetif : '.count($liste_etudiant));
-           
+            $sheet->setCellValue('B9', 'Effetif : ' . count($liste_etudiant));
+
             foreach ($liste_etudiant as $etudiant) {
                 foreach ($etudiant->getIdGroupe() as $groupe_etudiant) {
                     if ($groupe_etudiant->getIdPere() == null) {
@@ -815,102 +831,101 @@ class SecretaireController extends Controller {
                         $tp = $groupe_etudiant;
                     }
                 }
-                
-                $sheet->setCellValue('B'.$i, $etudiant->getNoEtudiant());
-                $sheet->setCellValue('C'.$i, $etudiant->getNom() . '  ' . $etudiant->getPrenom());
-                $sheet->setCellValue('D'.$i, $td->getLibelle());
-                $sheet->setCellValue('E'.$i, $tp->getLibelle());
-                
-                $sheet->getStyle('B'.$i)->getBorders()->applyFromArray(
-    		array('allborders' => array(
-                            'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-                            'color' => array(
+
+                $sheet->setCellValue('B' . $i, $etudiant->getNoEtudiant());
+                $sheet->setCellValue('C' . $i, $etudiant->getNom() . '  ' . $etudiant->getPrenom());
+                $sheet->setCellValue('D' . $i, $td->getLibelle());
+                $sheet->setCellValue('E' . $i, $tp->getLibelle());
+
+                $sheet->getStyle('B' . $i)->getBorders()->applyFromArray(
+                        array('allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
                                     'rgb' => '000000'
-                            )
-    			)
-                    )
-                );
-                
-                $sheet->getStyle('C'.$i)->getBorders()->applyFromArray(
-    		array('allborders' => array(
-                            'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-                            'color' => array(
-                                    'rgb' => '000000'
+                                )
                             )
                         )
-                    )
                 );
-                
-                $sheet->getStyle('D'.$i)->getBorders()->applyFromArray(
-    		array('allborders' => array(
-                            'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-                            'color' => array(
+
+                $sheet->getStyle('C' . $i)->getBorders()->applyFromArray(
+                        array('allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
                                     'rgb' => '000000'
+                                )
                             )
                         )
-                    )
                 );
-                
-                $sheet->getStyle('E'.$i)->getBorders()->applyFromArray(
-    		array('allborders' => array(
-                            'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-                            'color' => array(
+
+                $sheet->getStyle('D' . $i)->getBorders()->applyFromArray(
+                        array('allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
                                     'rgb' => '000000'
+                                )
                             )
                         )
-                    )
                 );
-                
-                $sheet->getStyle('F'.$i)->getBorders()->applyFromArray(
-    		array('allborders' => array(
-    			'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
-    			'color' => array(
-    				'rgb' => '000000')
+
+                $sheet->getStyle('E' . $i)->getBorders()->applyFromArray(
+                        array('allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
+                                    'rgb' => '000000'
+                                )
                             )
-                    )
+                        )
+                );
+
+                $sheet->getStyle('F' . $i)->getBorders()->applyFromArray(
+                        array('allborders' => array(
+                                'style' => \PHPExcel_Style_Border::BORDER_MEDIUM,
+                                'color' => array(
+                                    'rgb' => '000000')
+                            )
+                        )
                 );
                 $i++;
             }
             $objWriter = new \PHPExcel_Writer_Excel2007($listeExcel);
-        
+
             header('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition:inline;filename=Feuille d\'émargement - '.$groupe->getLibelle().'.xlsx ');
+            header('Content-Disposition:inline;filename=Feuille d\'émargement - ' . $groupe->getLibelle() . '.xlsx ');
             $objWriter->save('php://output');
         }
         return $this->render('IutTrombiBundle:Trombi:index.html.twig');
     }
-    
-    
-        /**
+
+    /**
      * @Route("/secretaire/exportExcelTrombi/{p_idGroupe}/{p_idSemestre}",name="exportExcelTrombi")
      * @param type $p_groupe
      * @param type $p_listeEtudiant
      * 
      */
     public function exportExcelTrombi($p_idGroupe, $p_idSemestre) {
-        
+
         $etudiantRepository = $this->getEtudiantRepo();
         $groupeRepository = $this->getGroupeRepo();
         $semestreRepository = $this->getSemestreRepo();
         $etudiants = $etudiantRepository->findAll();
-        
+
         $trombiExcel = new \PHPExcel();
         $trombiExcel->getProperties()->setCreator("IUT de Valence")
-                                    ->setTitle("Trombinoscope");
-     
+                ->setTitle("Trombinoscope");
+
         $sheet = $trombiExcel->getActiveSheet();
-        
+
         $sheet->getColumnDimension('B')->setWidth(20);
         $sheet->getColumnDimension('D')->setWidth(20);
         $sheet->getColumnDimension('F')->setWidth(20);
         $sheet->getColumnDimension('H')->setWidth(20);
-        
+
         if ($p_idGroupe == -1) {
-            $sheet->setCellValue('A1','Trombinoscope - ' . $semestreRepository->find($p_idSemestre)->getLibelle());
+            $sheet->setCellValue('A1', 'Trombinoscope - ' . $semestreRepository->find($p_idSemestre)->getLibelle());
         } else {
             $sheet->setCellValue('A1', 'Trombinoscope - ' . $semestreRepository->find($p_idSemestre)->getLibelle() . ' - Groupe ' . $groupeRepository->find($p_idGroupe)->getLibelle());
         }
-        
+
         if ($p_idGroupe == -1) {
             $semestre = $semestreRepository->find($p_idSemestre);
             $groupes = $groupeRepository->findBy(array(
@@ -931,7 +946,7 @@ class SecretaireController extends Controller {
                         $tp = $groupe_etudiant;
                     }
                 }
-                
+
                 $sheet->getRowDimension($row)->setRowHeight(95);
 
                 $objDrawing = new \PHPExcel_Worksheet_Drawing();
@@ -941,9 +956,9 @@ class SecretaireController extends Controller {
                 $objDrawing->setCoordinates($column . $row);
                 $objDrawing->setWorksheet($sheet);
 
-                $rowNom = $row+1;
-                $rowPrenom = $row+2;
-                $rowGroupe = $row+3;
+                $rowNom = $row + 1;
+                $rowPrenom = $row + 2;
+                $rowGroupe = $row + 3;
 
                 $groupeTDTP = $td->getLibelle().'    '.$tp->getLibelle();
 
@@ -953,41 +968,41 @@ class SecretaireController extends Controller {
                     
                 switch($column) {
                     case 'B':
-                        $column='D';
+                        $column = 'D';
                         break;
 
                     case 'D':
-                        $column='F';
+                        $column = 'F';
                         break;
 
                     case 'F':
-                        $column='H';
+                        $column = 'H';
                         break;
 
                     default:
-                        $column='B';
+                        $column = 'B';
                         break;
                 }
-                    
+
                 $i ++;
-                if($i==4){
-                    $i=0;
+                if ($i == 4) {
+                    $i = 0;
                     $row+=8;
                 }
             }
             $objWriter = new \PHPExcel_Writer_Excel2007($trombiExcel);
 
             header('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition:inline;filename=Trombinoscope - '.$semestre->getLibelle().'.xlsx ');
+            header('Content-Disposition:inline;filename=Trombinoscope - ' . $this->getSemestreRepo()->find($p_idSemestre)->getLibelle() . '.xlsx ');
             $objWriter->save('php://output');
         } else {
             $groupe = $groupeRepository->find($p_idGroupe);
             $liste_etudiant = $this->trieEtudiantGroupe($groupe, $etudiants);
-            
-            $row=4;
-            $i=0;
-            $column='B';
-            
+
+            $row = 4;
+            $i = 0;
+            $column = 'B';
+
             foreach ($liste_etudiant as $etudiant) {
                 foreach ($etudiant->getIdGroupe() as $groupe_etudiant) {
                     if ($groupe_etudiant->getIdPere() == null) {
@@ -996,7 +1011,7 @@ class SecretaireController extends Controller {
                         $tp = $groupe_etudiant;
                     }
                 }
-                
+
                 $sheet->getRowDimension($row)->setRowHeight(95);
 
                 $objDrawing = new \PHPExcel_Worksheet_Drawing();
@@ -1006,45 +1021,45 @@ class SecretaireController extends Controller {
                 $objDrawing->setCoordinates($column . $row);
                 $objDrawing->setWorksheet($sheet);
 
-                $rowNom = $row+1;
-                $rowPrenom = $row+2;
-                $rowGroupe = $row+3;
+                $rowNom = $row + 1;
+                $rowPrenom = $row + 2;
+                $rowGroupe = $row + 3;
 
-                $groupeTD = $td->getLibelle().'    '.$tp->getLibelle();
+                $groupeTD = $td->getLibelle() . '    ' . $tp->getLibelle();
 
                 $sheet->setCellValue($column . $rowNom, $etudiant->getNom());
                 $sheet->setCellValue($column . $rowPrenom, $etudiant->getPrenom());
                 $sheet->setCellValue($column . $rowGroupe, $groupeTD);
-                    
-                    
-                switch($column) {
+
+
+                switch ($column) {
                     case 'B':
-                        $column='D';
+                        $column = 'D';
                         break;
 
                     case 'D':
-                        $column='F';
+                        $column = 'F';
                         break;
 
                     case 'F':
-                        $column='H';
+                        $column = 'H';
                         break;
 
                     default:
-                        $column='B';
+                        $column = 'B';
                         break;
                 }
 
                 $i ++;
-                if($i==4){
-                    $i=0;
+                if ($i == 4) {
+                    $i = 0;
                     $row+=8;
                 }
             }
             $objWriter = new \PHPExcel_Writer_Excel2007($trombiExcel);
 
             header('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition:inline;filename=Trombinoscope - '.$groupe->getLibelle().'.xlsx ');
+            header('Content-Disposition:inline;filename=Trombinoscope - ' . $groupe->getLibelle() . '.xlsx ');
             $objWriter->save('php://output');
         }
         return $this->render('IutTrombiBundle:Trombi:index.html.twig');
@@ -1143,7 +1158,7 @@ class SecretaireController extends Controller {
     public function getWebDir() {
         return $this->get('kernel')->getRootDir() . '/../web/';
     }
-    
+
     /**
      * Methode qui retourne le répertoire photos dans lequel sont stockées les photos des étudiants.
      * @return type
@@ -1182,4 +1197,5 @@ class SecretaireController extends Controller {
         }
         return FALSE;
     }
+
 }

@@ -119,7 +119,7 @@
                                                 <h4 class="modal-title" id="{{ etudiant.id }}ModModalLabel">Modification de {{ etudiant.nom }} {{ etudiant.prenom }}</h4>
                                             </div>
                                             <div class="modal-body">
-                                                <form action="{{ path('modify') }}" method="POST">
+                                                <form action="{{ path('modify') }}" method="POST" enctype="multipart/form-data">
                                                     <div class="form-group">
                                                         <input type="hidden" name="id" value="{{ etudiant.id }}">
                                                     </div>
@@ -130,6 +130,10 @@
                                                     <div class="form-group">
                                                         <label for="prenom" class="control-label">Prenom :</label>
                                                         <input type="text" class="form-control" id="prenom" name="prenom" value="{{ etudiant.prenom }}">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="img" class="control-label">Photo : (doit respecter les conditions ci-dessous)</label>
+                                                        <input type="file" name="img" id="img" />
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="no_etudiant" class="control-label">No Etudiant :</label>
@@ -163,6 +167,14 @@
                                                             {% endfor %}
                                                         </select>
                                                     </div>
+                                                    <br>
+                                                    <div class="form-group panel panel-default">
+                                                        <label>L'image de respecter les condition suivantes :</label>
+                                                        <label>Extension acceptées : JPG / JPEG / PNG</label><br>
+                                                        <label>Dimension : 222*222 pixels</label><br>
+                                                        <label>Taille maximale du fichier : 1Mo</label>
+                                                    </div>
+                                                    <br>
                                                     <div class="form-group">
                                                         <input type="submit" class="btn btn-primary">
                                                     </div>
@@ -189,7 +201,8 @@
                     <div class="thumbnail">
                         <img src="{{ asset(etudiant.urlPhoto) }}" alt="{{ etudiant.nom }} {{ etudiant.prenom }}" class="img-responsive"/>
                         <div class="caption">
-                            <h4>{{ etudiant.nom }} {{ etudiant.prenom }}</h4>
+                            <h4>{{ etudiant.nom }}</h4>
+                            <h6>{{ etudiant.prenom }}</h6>
                             {% for td_tp in groupes %}
                                 {% for groupe_etudiant in etudiant.idGroupe %}
                                     {% if groupe_etudiant.id == td_tp.id %}
@@ -233,7 +246,7 @@
                                                 <h4 class="modal-title" id="{{ etudiant.id }}ModModalLabel">Modification de {{ etudiant.nom }} {{ etudiant.prenom }}</h4>
                                             </div>
                                             <div class="modal-body">
-                                                <form action="{{ path('modify', {'p_idGroupe':p_idGroupe, 'p_idSemestre':p_idSemestre, 'p_modif':p_modif}) }}" method="POST">
+                                                <form action="{{ path('modify') }}" method="POST" enctype="multipart/form-data">
 
                                                     <input type="hidden" name="id" value="{{ etudiant.id }}">
                                                     <div class="form-group">
@@ -243,6 +256,10 @@
                                                     <div class="form-group">
                                                         <label for="prenom" class="control-label">Prenom :</label>
                                                         <input type="text" class="form-control" id="prenom" name="prenom" value="{{ etudiant.prenom }}">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="img" class="control-label">Photo : (doit respecter les conditions ci-dessous)</label>
+                                                        <input type="file" name="img" id="img" />
                                                     </div>
                                                     <div class="form-group">
                                                         <label for="no_etudiant" class="control-label">No Etudiant :</label>
@@ -282,6 +299,14 @@
                                                             {% endfor %}
                                                         </select>
                                                     </div>
+                                                    <br>
+                                                    <div class="form-group panel panel-default">
+                                                        <label>L'image de respecter les condition suivantes :</label>
+                                                        <label>Extension acceptées : JPG / JPEG / PNG</label><br>
+                                                        <label>Dimension : 222*222 pixels</label><br>
+                                                        <label>Taille maximale du fichier : 1Mo</label>
+                                                    </div>
+                                                    <br>
                                                     <div class="form-group">
                                                         <input type="submit" class="btn btn-primary">
                                                     </div>
