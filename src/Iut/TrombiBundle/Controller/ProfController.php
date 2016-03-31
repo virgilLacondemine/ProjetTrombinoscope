@@ -579,15 +579,18 @@ class ProfController extends Controller {
         }
         
         if ($p_idGroupe == -1) {
-            $groupe = $groupeRepository->find($p_idGroupe);
-            $liste_etudiant = $this->trieEtudiantGroupe($groupe, $etudiants);
+            $semestre = $semestreRepository->find($p_idSemestre);
+            $groupes = $groupeRepository->findBy(array(
+                'idSemestre' => $semestre
+            ));
+            $liste_etudiant = $this->trieEtudiantSemestre($groupes, $etudiants);
+            
             
             $row=4;
             $i=0;
             $column='B';
             
             foreach ($liste_etudiant as $etudiant) {
-                
                 foreach ($etudiant->getIdGroupe() as $groupe_etudiant) {
                     if ($groupe_etudiant->getIdPere() == null) {
                         $td = $groupe_etudiant;
@@ -609,11 +612,11 @@ class ProfController extends Controller {
                 $rowPrenom = $row+2;
                 $rowGroupe = $row+3;
 
-                $TDTP = $td->getLibelle() + ' ' + $td->getLibelle();
+                $groupeTDTP = $td->getLibelle().'    '.$tp->getLibelle();
 
                 $sheet->setCellValue($column . $rowNom, $etudiant->getNom());
                 $sheet->setCellValue($column . $rowPrenom, $etudiant->getPrenom());
-                $sheet->setCellValue($column . $rowGroupe, $TDTP);
+                $sheet->setCellValue($column . $rowGroupe, $groupeTDTP);
                     
                 switch($column) {
                     case 'B':
